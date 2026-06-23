@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Espacio · Rebeca</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+:root {
+  --ink:#1c2b3a; --soft:#f0f4f8; --paper:#fff; --line:#dde3ea; --muted:#6b7a8d;
+  --green:#059669; --red:#dc2626; --blue:#2563eb; --purple:#7c3aed;
+  --amber:#b45309; --teal:#0d9488; --orange:#ea580c;
+  --day-bg:#d1fae5; --day-c:#065f46;
+  --night-bg:#1e3a5f; --night-c:#90caf9;
+  --libre-bg:#dbeafe; --libre-c:#1e40af;
+  --exam-bg:#2d1b5e; --exam-c:#c4b5fd;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--soft);color:var(--ink);min-height:100vh;}
+nav{background:var(--ink);padding:0 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;height:50px;}
+.nb{font-family:'Playfair Display',serif;font-style:italic;color:#7ecbb8;font-size:0.95rem;}
+.nt{display:flex;gap:2px;overflow-x:auto;}
+.nt::-webkit-scrollbar{display:none;}
+.nb2{background:none;border:none;color:#8899aa;font-family:'Inter',sans-serif;font-size:0.62rem;font-weight:700;padding:4px 7px;border-radius:5px;cursor:pointer;transition:all .2s;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;}
+.nb2.active{background:var(--teal);color:#fff;}
+.nb2:hover:not(.active){color:#fff;background:rgba(255,255,255,.1);}
+.page{display:none;padding:16px 14px 100px;max-width:480px;margin:0 auto;}
+.page.active{display:block;}
+.sh{font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:700;margin:18px 0 8px;}
+.ph{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;line-height:1.1;}
+.ps{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:3px;}
+/* CARDS */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:10px;}
+.tcard{border-radius:12px;padding:14px 16px;margin-bottom:12px;}
+.td{background:var(--day-bg);border-left:4px solid var(--green);}
+.tn{background:var(--night-bg);border-left:4px solid #4a9eca;color:#e0f0ff;}
+.tl{background:var(--libre-bg);border-left:4px solid var(--blue);}
+.tlbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:3px;opacity:.75;}
+.td .tlbl{color:var(--green);} .tn .tlbl{color:#4a9eca;} .tl .tlbl{color:var(--blue);}
+.thrs{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;margin-bottom:6px;}
+.tn .thrs{color:#fff;}
+.bls{display:flex;gap:5px;flex-wrap:wrap;}
+.bl{font-size:.66rem;padding:3px 9px;border-radius:20px;font-weight:600;}
+.bl-a{background:rgba(184,134,11,.15);color:var(--amber);}
+.bl-b{background:rgba(124,58,237,.15);color:var(--purple);}
+.bl-c{background:rgba(37,99,235,.15);color:var(--blue);}
+.tn .bl-a{background:rgba(184,134,11,.3);color:#f0c040;}
+.tn .bl-b{background:rgba(124,58,237,.3);color:#c4b5fd;}
+/* TEXTAREA */
+textarea{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:9px 10px;font-family:'Inter',sans-serif;font-size:.85rem;color:var(--ink);resize:none;background:var(--soft);outline:none;line-height:1.7;}
+textarea:focus{outline:2px solid var(--teal);border-color:transparent;background:#fff;}
+textarea.bare{border:none;background:transparent;padding:0;font-size:.87rem;min-height:80px;}
+textarea.bare:focus{outline:none;}
+textarea.bare::placeholder{color:#b0bac5;font-style:italic;}
+/* CONTROLES */
+.stepper{display:flex;align-items:center;gap:4px;}
+.sb{width:27px;height:27px;border:1.5px solid var(--line);border-radius:7px;background:var(--soft);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;color:var(--ink);transition:all .12s;flex-shrink:0;}
+.sb:hover{background:var(--line);}
+.sv{width:44px;text-align:center;font-size:.85rem;font-weight:700;border:1.5px solid var(--line);border-radius:7px;padding:4px 2px;background:#fff;color:var(--ink);font-family:'Inter',sans-serif;}
+.sv:focus{outline:2px solid var(--teal);border-color:transparent;}
+.sv.w{width:60px;}
+.yn{display:flex;gap:4px;}
+.yb{padding:4px 12px;border-radius:7px;border:1.5px solid var(--line);background:#fff;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;}
+.yb.y.on{background:#d1fae5;border-color:var(--green);color:#065f46;}
+.yb.n.on{background:#fee2e2;border-color:var(--red);color:#7f1d1d;}
+.stars{display:flex;gap:3px;}
+.str{background:none;border:none;font-size:1.1rem;cursor:pointer;opacity:.22;transition:all .1s;padding:2px;}
+.str.on{opacity:1;}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;}
+.chip{padding:4px 10px;border-radius:20px;border:1.5px solid var(--line);background:#fff;font-size:.7rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;color:var(--ink);}
+.chip.on{background:#d1fae5;border-color:var(--green);color:#065f46;}
+/* TRACK BLOCK */
+.tb{background:var(--paper);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+.th{display:flex;align-items:center;gap:9px;padding:12px 14px;cursor:pointer;user-select:none;transition:background .15s;}
+.th:hover{background:var(--soft);}
+.tic{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.tg{background:#d1fae5;} .tb2{background:#dbeafe;} .tp{background:#ede9fe;} .ty{background:#fef3c7;} .tr2{background:#fee2e2;} .tc2{background:#cffafe;}
+.tt{font-size:.88rem;font-weight:700;flex:1;}
+.tch{color:var(--muted);font-size:.72rem;transition:transform .2s;}
+.tch.open{transform:rotate(180deg);}
+.tbd{padding:0 14px 13px;}
+.tbd.hid{display:none;}
+.trow{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);}
+.trow:last-of-type{border-bottom:none;}
+.trow.col{flex-direction:column;align-items:flex-start;gap:5px;}
+.tlb{font-size:.8rem;color:var(--ink);flex:1;}
+.tsub{font-size:.64rem;color:var(--muted);display:block;}
+/* HUMOR */
+.hscale{display:flex;gap:4px;margin:7px 0;}
+.hb{flex:1;padding:7px 2px;border:2px solid var(--line);border-radius:9px;background:#fff;cursor:pointer;text-align:center;font-size:1rem;transition:all .15s;}
+.hb:hover{transform:scale(1.08);}
+.hb.on{border-color:var(--purple);background:#f5f0ff;}
+.hlb{font-size:.54rem;color:var(--muted);display:block;margin-top:2px;}
+/* EMOJIS DE VALORACION */
+.eval{display:flex;gap:6px;align-items:center;}
+.eval-btn{background:none;border:2px solid var(--line);border-radius:8px;font-size:1.1rem;cursor:pointer;padding:4px 8px;transition:all .15s;}
+.eval-btn.pos.on{border-color:var(--green);background:#d1fae5;}
+.eval-btn.neg.on{border-color:var(--red);background:#fee2e2;}
+/* EVENTOS/RECORDATORIOS */
+.ev-item{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);}
+.ev-item:last-child{border-bottom:none;}
+.ev-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--line);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;transition:all .2s;}
+.ev-check.done{background:var(--green);border-color:var(--green);color:#fff;}
+.ev-check.pend{background:#fee2e2;border-color:var(--red);}
+.ev-txt{flex:1;font-size:.82rem;}
+.ev-txt.done-txt{text-decoration:line-through;color:var(--muted);}
+.ev-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.85rem;padding:2px 5px;}
+.add-ev{display:flex;gap:6px;margin-top:8px;}
+.add-ev input{flex:1;border:1.5px solid var(--line);border-radius:8px;padding:7px 10px;font-family:'Inter',sans-serif;font-size:.82rem;background:var(--soft);outline:none;color:var(--ink);}
+.add-ev input:focus{outline:2px solid var(--teal);border-color:transparent;background:#fff;}
+.add-ev select{border:1.5px solid var(--line);border-radius:8px;padding:7px 8px;font-family:'Inter',sans-serif;font-size:.75rem;background:var(--soft);color:var(--ink);outline:none;cursor:pointer;}
+.add-ev button{padding:7px 12px;background:var(--teal);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:.8rem;}
+/* WC */
+.wc-entry{background:var(--soft);border-radius:9px;padding:10px 12px;margin-bottom:7px;border:1px solid var(--line);}
+.wc-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;}
+.wc-tipo{display:flex;gap:4px;}
+.wc-t{padding:4px 10px;border-radius:20px;border:1.5px solid var(--line);background:#fff;font-size:.72rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+.wc-t.on{background:#fef3c7;border-color:var(--amber);color:var(--amber);}
+.wc-motivo{display:flex;gap:3px;flex-wrap:wrap;}
+.wc-m{padding:3px 8px;border-radius:20px;border:1.5px solid var(--line);background:#fff;font-size:.66rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.wc-m.on{background:#fee2e2;border-color:var(--red);color:var(--red);}
+.wc-m.ok.on{background:#d1fae5;border-color:var(--green);color:var(--green);}
+.wc-time{border:1.5px solid var(--line);border-radius:7px;padding:4px 7px;font-size:.78rem;font-family:'Inter',sans-serif;background:#fff;color:var(--ink);outline:none;}
+.wc-time:focus{outline:2px solid var(--teal);border-color:transparent;}
+.wc-add{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:.78rem;font-weight:700;margin-top:8px;width:100%;}
+/* SOCIAL */
+.soc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;}
+.soc-item{border:1.5px solid var(--line);border-radius:10px;padding:10px;background:#fff;cursor:pointer;transition:all .15s;}
+.soc-item.on{border-color:var(--teal);background:#f0fdfb;}
+.soc-emoji{font-size:1.4rem;margin-bottom:4px;}
+.soc-lbl{font-size:.72rem;font-weight:700;color:var(--ink);}
+.soc-nota{width:100%;margin-top:4px;font-size:.72rem;}
+/* TAROT */
+.tarot-card{background:linear-gradient(135deg,#1a0533,#2d1b5e);border-radius:14px;padding:16px;color:#fff;text-align:center;margin-bottom:10px;}
+.tarot-icon{font-size:2.5rem;margin-bottom:6px;}
+.tarot-nombre{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:4px;}
+.tarot-sig{font-size:.75rem;color:#c4b5fd;}
+/* NUMEROLOGIA */
+.num-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.num-chip{background:linear-gradient(135deg,#1e3a5f,#2d1b5e);color:#90caf9;border:none;border-radius:8px;padding:5px 12px;font-size:.88rem;font-weight:700;font-family:'Inter',sans-serif;}
+/* CALENDARIO */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cal-mes{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;}
+.cal-arr{background:none;border:1.5px solid var(--line);font-size:1rem;cursor:pointer;color:var(--ink);padding:4px 10px;border-radius:7px;transition:all .15s;}
+.cal-arr:hover{background:var(--line);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:10px;}
+.cal-dow{text-align:center;font-size:.58rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;padding:4px 0;}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:7px;cursor:pointer;font-size:.78rem;font-weight:600;transition:all .12s;padding:1px;border:1.5px solid transparent;}
+.cal-day:hover:not(.emp){border-color:var(--teal);}
+.emp{cursor:default;}
+.hoy{background:var(--teal)!important;color:#fff!important;font-weight:800;}
+.dc{background:var(--day-bg);color:var(--day-c);}
+.nc{background:var(--night-bg);color:#90caf9;}
+.lc{background:var(--libre-bg);color:var(--libre-c);}
+.exc{background:var(--exam-bg);color:var(--exam-c);}
+.cdots{display:flex;gap:2px;margin-top:1px;flex-wrap:wrap;justify-content:center;}
+.cd{width:3px;height:3px;border-radius:50%;}
+.cd-d{background:var(--amber);}
+.cd-a{background:var(--purple);}
+.cd-r{background:var(--teal);}
+.cd-p{background:var(--red);}
+.cd-ev{background:var(--orange);}
+.cal-ley{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.cl-i{display:flex;align-items:center;gap:4px;font-size:.65rem;color:var(--muted);}
+.cl-d{width:9px;height:9px;border-radius:2px;}
+.dia-det{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:13px;display:none;margin-top:6px;}
+.dia-det.show{display:block;}
+.det-tit{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:8px;}
+.det-row{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:.78rem;}
+.det-row:last-child{border-bottom:none;}
+.det-icon{flex-shrink:0;font-size:.9rem;}
+.det-link{color:var(--teal);font-weight:700;cursor:pointer;text-decoration:underline;background:none;border:none;font-family:'Inter',sans-serif;font-size:.78rem;padding:0;}
+/* ANDREA */
+.and-list{display:flex;flex-direction:column;gap:9px;}
+.and-item{background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:11px 13px;cursor:pointer;transition:border-color .15s;}
+.and-item:hover{border-color:var(--purple);}
+.and-fecha{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;display:flex;justify-content:space-between;}
+.and-txt{font-size:.83rem;line-height:1.6;color:var(--ink);white-space:pre-wrap;}
+.and-full{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);}
+.and-full.show{display:block;}
+/* IA CHAT */
+.chat-box{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:10px;}
+.chat-msgs{min-height:120px;max-height:320px;overflow-y:auto;padding:12px;}
+.msg{margin-bottom:10px;display:flex;gap:8px;}
+.msg.user{flex-direction:row-reverse;}
+.msg-bubble{max-width:82%;padding:9px 12px;border-radius:12px;font-size:.82rem;line-height:1.6;}
+.msg.ia .msg-bubble{background:linear-gradient(135deg,#f0fdfb,#e6f7f5);border:1px solid #b2e8e0;color:var(--ink);}
+.msg.user .msg-bubble{background:var(--teal);color:#fff;}
+.msg-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;margin-top:2px;}
+.msg.ia .msg-avatar{background:#d1fae5;}
+.msg.user .msg-avatar{background:var(--purple);}
+.chat-input-row{display:flex;gap:6px;padding:10px 12px;border-top:1px solid var(--line);background:var(--soft);}
+.chat-input-row textarea{border-radius:8px;padding:7px 10px;font-size:.82rem;min-height:unset;resize:none;flex:1;margin:0;}
+.chat-send{background:var(--teal);color:#fff;border:none;border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:700;font-size:.82rem;flex-shrink:0;align-self:flex-end;}
+.chat-send:disabled{opacity:.5;cursor:default;}
+/* FRASE */
+.frase-card{background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:14px;padding:18px;color:#fff;margin-bottom:10px;text-align:center;}
+.frase-q{font-family:'Playfair Display',serif;font-style:italic;font-size:1rem;line-height:1.6;margin-bottom:8px;color:#e0f0ff;}
+.frase-autor{font-size:.7rem;color:#90caf9;letter-spacing:.08em;}
+/* INFORME */
+.inf-opts{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.inf-opt{padding:6px 14px;border-radius:20px;border:1.5px solid var(--line);background:#fff;font-size:.75rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.inf-opt.on{background:var(--teal);border-color:var(--teal);color:#fff;}
+.inf-result{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px;white-space:pre-wrap;font-size:.83rem;line-height:1.7;color:var(--ink);min-height:80px;}
+/* BTN */
+.btn{width:100%;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;margin-top:12px;transition:opacity .2s;letter-spacing:.03em;}
+.btn:hover{opacity:.87;}
+.btn.sec{background:var(--ink);}
+.btn-sm{padding:6px 14px;width:auto;margin-top:0;font-size:.75rem;border-radius:8px;}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:.87rem;}
+.empty-i{font-size:2.2rem;margin-bottom:10px;}
+/* EXAMEN HOY */
+.exh{background:var(--exam-bg);border-radius:12px;padding:13px 16px;margin-bottom:12px;color:#fff;border-left:4px solid var(--exam-c);}
+.exh-l{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:#c4b5fd;font-weight:700;margin-bottom:3px;}
+.exh-n{font-family:'Playfair Display',serif;font-size:.98rem;font-weight:700;margin-bottom:2px;}
+.exh-h{font-size:.73rem;color:#a0b0c0;}
+/* STATS */
+.stat-card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;}
+.stat-t{font-family:'Playfair Display',serif;font-size:.92rem;margin-bottom:12px;}
+.stat-row{display:flex;justify-content:space-around;text-align:center;}
+.sn{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;line-height:1;}
+.sl{font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
+.hbr{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.hbl{font-size:.9rem;width:21px;text-align:center;}
+.hbt{flex:1;background:var(--line);border-radius:4px;height:6px;overflow:hidden;}
+.hbf{height:100%;border-radius:4px;background:var(--purple);transition:width .5s ease;}
+.hbc{font-size:.68rem;color:var(--muted);width:16px;text-align:right;}
+.tr3{display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.trl{font-size:.72rem;color:var(--ink);width:84px;flex-shrink:0;}
+.trb{display:flex;gap:3px;flex:1;align-items:flex-end;height:28px;}
+.trbar{flex:1;border-radius:3px 3px 0 0;min-height:3px;transition:height .3s;}
+.trv{font-size:.67rem;color:var(--muted);width:28px;text-align:right;font-weight:600;}
+.ex-lista{display:flex;flex-direction:column;gap:7px;}
+.ex-i{display:flex;align-items:center;gap:9px;padding:9px 13px;background:var(--paper);border:1px solid var(--line);border-radius:10px;}
+.ex-i.past{opacity:.45;}
+.ex-d2{text-align:center;min-width:38px;padding:5px 6px;background:var(--exam-bg);border-radius:7px;color:#fff;}
+.ex-dd{font-size:.95rem;font-weight:800;line-height:1;}
+.ex-mm{font-size:.55rem;text-transform:uppercase;opacity:.8;}
+.ex-inf{flex:1;}
+.ex-a{font-size:.78rem;font-weight:700;}
+.ex-hl{font-size:.67rem;color:var(--muted);margin-top:2px;}
+.ex-f{font-size:.67rem;font-weight:700;color:var(--exam-c);white-space:nowrap;}
+.emo-quick{border:2px solid transparent;border-radius:10px;padding:8px 4px;cursor:pointer;font-size:1.2rem;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;font-family:'Inter',sans-serif;}
+.emo-quick span{font-size:.6rem;font-weight:700;color:var(--ink);}
+.emo-quick.on{border-color:var(--teal);box-shadow:0 0 0 2px rgba(13,148,136,.3);}
+.ans-btn{background:none;border:2px solid transparent;border-radius:10px;font-size:1.3rem;cursor:pointer;padding:5px 7px;transition:all .15s;}
+.ans-btn:hover{transform:scale(1.15);}
+.ans-btn.on{border-color:var(--red);background:#fee2e2;}
+.det-bloque{background:var(--soft);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:10px;}
+.det-bloque-tit{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:7px;}
+.det-dato{background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:.76rem;color:var(--ink);}
+.foto-zona{border:2px dashed var(--line);border-radius:12px;padding:20px 16px;text-align:center;background:var(--soft);cursor:pointer;transition:all .2s;margin-bottom:8px;position:relative;}
+.foto-zona:hover{border-color:var(--teal);background:#e6f7f5;}
+.foto-zona input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.foto-preview{position:relative;border-radius:10px;overflow:hidden;margin-bottom:10px;max-height:260px;display:none;}
+.foto-preview img{width:100%;object-fit:contain;border-radius:10px;display:block;}
+.foto-preview.show{display:block;}
+.foto-del-btn{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:20px;padding:4px 10px;font-size:.72rem;cursor:pointer;font-family:"Inter",sans-serif;}
+.ia-result-box{background:linear-gradient(135deg,#f0fdfb,#e8f4ff);border:1.5px solid #b2e0d8;border-radius:12px;padding:14px;margin-top:10px;font-size:.82rem;line-height:1.7;color:var(--ink);white-space:pre-wrap;display:none;}
+.ia-result-box.show{display:block;}
+.ia-result-box .ia-label{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:6px;}
+.datos-extraidos{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0;}
+.dato-chip{background:var(--paper);border:1.5px solid var(--teal);border-radius:8px;padding:7px 10px;font-size:.78rem;cursor:pointer;transition:all .15s;}
+.dato-chip:hover{background:#e6f7f5;}
+.dato-chip .dc-lbl{font-size:.62rem;color:var(--muted);display:block;margin-bottom:1px;}
+.dato-chip .dc-val{font-weight:700;color:var(--ink);}
+.dato-chip.aplicado{background:#d1fae5;border-color:var(--green);}
+.btn-analizar{width:100%;padding:11px;background:linear-gradient(135deg,var(--teal),var(--blue));color:#fff;border:none;border-radius:10px;font-family:"Inter",sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .2s;display:none;}
+.btn-analizar.show{display:block;}
+.btn-analizar:disabled{opacity:.5;cursor:default;}
+/* ANDREA */
+.and-tarea{background:var(--paper);border:1.5px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;}
+.and-tarea.completada{opacity:.7;border-color:#d1fae5;}
+.and-tarea-head{padding:12px 14px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;}
+.and-tarea-check{width:22px;height:22px;border-radius:6px;border:2px solid #d8ccf5;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;margin-top:2px;transition:all .2s;}
+.and-tarea-check.done{background:#7c3aed;border-color:#7c3aed;color:#fff;}
+.and-tarea-info{flex:1;}
+.and-tarea-titulo{font-size:.88rem;font-weight:700;color:#1c2b3a;margin-bottom:2px;}
+.and-tarea-meta{font-size:.68rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;}
+.and-tarea-tipo{background:#ede9fe;color:#7c3aed;padding:2px 8px;border-radius:20px;font-weight:600;}
+.and-tarea-body{padding:0 14px 14px;border-top:1px solid var(--line);}
+.and-tab-content{margin-top:8px;}
+.and-comentario{background:var(--soft);border-radius:8px;padding:9px 11px;margin-bottom:6px;font-size:.8rem;line-height:1.6;}
+.and-comentario-hora{font-size:.65rem;color:var(--muted);margin-bottom:3px;}
+.voz-btn{display:flex;align-items:center;gap:8px;padding:10px 14px;border:2px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;color:var(--ink);transition:all .2s;width:100%;margin-bottom:8px;}
+.voz-btn:hover{border-color:#7c3aed;background:#f8f4ff;}
+.voz-btn.grabando{border-color:var(--red);background:#fee2e2;color:var(--red);}
+.voz-btn .voz-icon{font-size:1.2rem;}
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px;}
+.media-item{aspect-ratio:1;border-radius:7px;overflow:hidden;position:relative;background:var(--line);}
+.media-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.media-del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+/* MÚSICA */
+.music-bar{position:fixed;bottom:0;left:0;right:0;background:var(--ink);padding:8px 14px;display:flex;align-items:center;gap:10px;z-index:150;border-top:2px solid #2d3f50;}
+.music-bar.hidden{display:none;}
+.music-title{font-size:.72rem;color:#7ecbb8;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.music-btn{background:none;border:none;color:white;font-size:1.1rem;cursor:pointer;padding:4px 6px;}
+.music-vol{width:60px;accent-color:#7ecbb8;}
+.music-toggle{position:fixed;bottom:56px;right:14px;background:var(--ink);border:2px solid #7ecbb8;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:149;font-size:1rem;}
+/* VOZ INLINE */
+.voz-inline{display:flex;gap:5px;margin-top:5px;}
+.voz-inline-btn{padding:6px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--soft);font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;}
+.voz-inline-btn:hover{border-color:var(--teal);}
+.voz-inline-btn.rec{background:#fee2e2;border-color:var(--red);color:var(--red);}
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:8px 16px;border-radius:20px;font-size:.8rem;opacity:0;transition:all .3s;z-index:200;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+/* FOTO */
+/* foto grid legacy removed */
+/* TABS INTERNOS */
+.itabs{display:flex;gap:3px;margin-bottom:12px;background:var(--soft);border-radius:9px;padding:3px;}
+.itab{flex:1;padding:6px;border:none;background:none;border-radius:7px;font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;color:var(--muted);transition:all .15s;}
+.itab.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+html{scroll-behavior:smooth;}
+@media(max-width:420px){.page{padding-bottom:110px;}nav{padding:0 8px;}.nb2{font-size:.58rem;padding:3px 6px;}}
+</style>
+</head>
+<body>
+<nav>
+  <span class="nb">Rebeca ✦</span>
+  <div class="nt">
+    <button class="nb2 active" onclick="goTo('hoy',this)">Hoy</button>
+    <button class="nb2" onclick="goTo('registro',this)">Registro</button>
+    <button class="nb2" onclick="goTo('wc',this)">WC</button>
+    <button class="nb2" onclick="goTo('social',this)">Social</button>
+    <button class="nb2" onclick="goTo('calendario',this)">Cal.</button>
+    <button class="nb2" onclick="goTo('andrea',this)">Andrea</button>
+    <button class="nb2" onclick="goTo('tarot',this)">Tarot</button>
+    <button class="nb2" onclick="goTo('ia',this)">IA 💬</button>
+    <button class="nb2" onclick="goTo('stats',this)">Stats</button>
+  </div>
+</nav>
+
+<!-- ══ HOY ══ -->
+<div id="page-hoy" class="page active">
+
+  <!-- Cabecera fecha + turno -->
+  <div style="margin-bottom:14px;">
+    <div class="ph" id="f-hoy"></div>
+    <div class="ps" id="f-dia"></div>
+  </div>
+  <div id="turno-card"></div>
+  <div id="examen-card"></div>
+
+  <!-- ESTADO EMOCIONAL RÁPIDO -->
+  <div class="sh">¿Cómo estoy ahora mismo?</div>
+  <div class="card" style="background:linear-gradient(135deg,#f0fdfb,#e6f2ff);">
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:8px;" id="hora-estado-lbl"></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
+      <button class="emo-quick" data-e="triste" onclick="pickEmo('triste')" style="background:#e0e8ff;">😢<span>Triste</span></button>
+      <button class="emo-quick" data-e="ansiosa" onclick="pickEmo('ansiosa')" style="background:#fff0d0;">😰<span>Ansiosa</span></button>
+      <button class="emo-quick" data-e="enfadada" onclick="pickEmo('enfadada')" style="background:#ffe0e0;">😠<span>Enfadada</span></button>
+      <button class="emo-quick" data-e="alegre" onclick="pickEmo('alegre')" style="background:#d1fae5;">😊<span>Alegre</span></button>
+      <button class="emo-quick" data-e="tranquila" onclick="pickEmo('tranquila')" style="background:#e0f7fa;">😌<span>Tranquila</span></button>
+      <button class="emo-quick" data-e="cansada" onclick="pickEmo('cansada')" style="background:#f0e8ff;">😴<span>Cansada</span></button>
+      <button class="emo-quick" data-e="frustrada" onclick="pickEmo('frustrada')" style="background:#ffe8d0;">😤<span>Frustrada</span></button>
+      <button class="emo-quick" data-e="neutral" onclick="pickEmo('neutral')" style="background:#f0f0f0;">😐<span>Neutral</span></button>
+    </div>
+    <textarea id="emo-porque" rows="2" placeholder="¿Por qué? (opcional) — se guardará con la hora exacta"></textarea>
+    <button class="btn" style="margin-top:8px;" onclick="guardarEmo()">Registrar estado</button>
+    <!-- Historial del día -->
+    <div id="emo-historial-hoy" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- EVENTOS Y RECORDATORIOS -->
+  <div class="sh">Eventos y recordatorios</div>
+  <div class="card" id="ev-hoy-list"></div>
+  <div class="add-ev">
+    <input type="text" id="ev-hoy-inp" placeholder="Nuevo evento o recordatorio...">
+    <select id="ev-hoy-tipo">
+      <option value="evento">📅 Evento</option>
+      <option value="recuerda">💭 Recuerda</option>
+    </select>
+    <button onclick="addEvHoy()">+</button>
+  </div>
+
+  <!-- DIARIO -->
+  <div class="sh">Diario del día</div>
+  <div class="card"><textarea class="bare" id="txt-diario" placeholder="¿Cómo ha ido el día? Escribe lo que quieras…" rows="5"></textarea></div>
+  <button class="btn" onclick="guardarHoy()">Guardar diario</button>
+</div>
+
+<!-- ══ REGISTRO ══ -->
+<div id="page-registro" class="page">
+  <div style="margin-bottom:14px;"><div class="ph" style="font-size:1.3rem;" id="reg-tit"></div><div class="ps">registro de datos</div></div>
+
+  <div class="tb">
+    <div class="th" onclick="tog('b-foto')"><div class="tic tc2">📸</div><div class="tt">Foto del día</div><span class="tch open" id="ch-b-foto">▼</span></div>
+    <div class="tbd" id="b-foto">
+
+      <!-- NOTA SOBRE CÓMO FUNCIONA -->
+      <div style="background:#fff8e1;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:12px;font-size:.75rem;color:#78350f;line-height:1.5;">
+        <strong>💡 Cómo funciona:</strong> Guarda esta app en tu móvil como archivo HTML y ábrela desde Chrome/Safari. Ahí podrás subir fotos de tu báscula, reloj o app de macros y la IA extraerá los datos automáticamente.
+        <br>Mientras tanto, puedes <strong>escribir los datos manualmente</strong> en los campos de abajo.
+      </div>
+
+      <!-- INPUT REAL — funciona cuando se abre el HTML guardado en el móvil -->
+      <div style="margin-bottom:10px;">
+        <label style="display:flex;align-items:center;justify-content:center;gap:10px;border:2px dashed #0d9488;border-radius:12px;padding:20px 16px;text-align:center;background:#f0fdfb;cursor:pointer;transition:all .2s;" 
+               id="foto-label"
+               ondragover="event.preventDefault();this.style.background='#d1fae5';"
+               ondragleave="this.style.background='#f0fdfb';"
+               ondrop="handleDrop(event)">
+          <span style="font-size:1.8rem;">📷</span>
+          <div>
+            <div style="font-size:.85rem;font-weight:700;color:#0d9488;">Subir foto / captura de pantalla</div>
+            <div style="font-size:.7rem;color:#6b7a8d;margin-top:2px;">Báscula · reloj · app de macros · Yazio · MyFitnessPal</div>
+          </div>
+          <input type="file" id="foto-inp-hidden" accept="image/*,application/pdf"
+                 style="display:none;" onchange="addFotoDesdeInput(this)">
+        </label>
+      </div>
+
+      <!-- PREVIEW -->
+      <div id="foto-preview" style="display:none;position:relative;margin-bottom:10px;border-radius:12px;overflow:hidden;border:2px solid #0d9488;">
+        <img id="foto-preview-img" src="" alt="" style="width:100%;max-height:300px;object-fit:contain;display:block;background:#0f172a;">
+        <button onclick="borrarFoto()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.75);color:#fff;border:none;border-radius:20px;padding:5px 12px;font-size:.73rem;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;">✕ Quitar</button>
+      </div>
+
+      <!-- BOTÓN ANALIZAR -->
+      <button id="btn-analizar" onclick="analizarFoto()" 
+              style="display:none;width:100%;padding:14px;background:linear-gradient(135deg,#0d9488,#2563eb);color:#fff;border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;margin-bottom:8px;letter-spacing:.02em;">
+        🔍 Analizar con IA — extraer todos los datos
+      </button>
+
+      <!-- ESTADO / SPINNER -->
+      <div id="foto-estado" style="font-size:.78rem;color:#6b7a8d;text-align:center;min-height:18px;margin-bottom:8px;"></div>
+
+      <!-- RESULTADO IA -->
+      <div id="ia-result-box" style="display:none;">
+        <!-- Chips de datos -->
+        <div style="font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#0d9488;margin-bottom:8px;">📊 Datos detectados — toca para rellenar en el registro</div>
+        <div id="datos-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;"></div>
+        <!-- Resumen IA -->
+        <div id="ia-resumen" style="background:linear-gradient(135deg,#f0fdfb,#e8f4ff);border:1.5px solid #0d9488;border-radius:10px;padding:12px;font-size:.82rem;line-height:1.7;color:#1c2b3a;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="tb">
+    <div class="th" onclick="tog('b-cuerpo')"><div class="tic tg">⚖️</div><div class="tt">Cuerpo & Salud</div><span class="tch open" id="ch-b-cuerpo">▼</span></div>
+    <div class="tbd" id="b-cuerpo">
+      <div class="trow"><div class="tlb">Peso <span class="tsub">kg</span></div><div style="display:flex;align-items:center;gap:8px;"><div class="stepper"><button class="sb" onclick="adj('peso',-0.1)">−</button><input class="sv" type="number" id="v-peso" placeholder="—" step="0.1" min="0"><button class="sb" onclick="adj('peso',0.1)">+</button></div><div class="eval"><button class="eval-btn pos" id="ep-peso" onclick="toggleEval('peso','pos')">😊</button><button class="eval-btn neg" id="en-peso" onclick="toggleEval('peso','neg')">😟</button></div></div></div>
+      <div class="trow"><div class="tlb">Agua bebida <span class="tsub">vasos ~250ml</span></div><div style="display:flex;align-items:center;gap:8px;"><div class="stepper"><button class="sb" onclick="adj('agua',-1)">−</button><input class="sv" type="number" id="v-agua" value="0" min="0"><button class="sb" onclick="adj('agua',1)">+</button></div><div class="eval"><button class="eval-btn pos" id="ep-agua" onclick="toggleEval('agua','pos')">😊</button><button class="eval-btn neg" id="en-agua" onclick="toggleEval('agua','neg')">😟</button></div></div></div>
+      <div class="trow"><div class="tlb">Pastillas tomadas</div><div style="display:flex;align-items:center;gap:8px;"><div class="yn"><button class="yb y" id="yn-past-si" onclick="yn('past','si')">Sí ✓</button><button class="yb n" id="yn-past-no" onclick="yn('past','no')">No ✗</button></div></div></div>
+      <div class="trow col">
+        <div class="tlb">Ansiedad <span class="tsub">elige una intensidad · toca de nuevo para borrar</span></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:8px;flex-wrap:wrap;">
+          <div style="display:flex;gap:6px;" id="s-ansiedad">
+            <button class="ans-btn" data-v="1" onclick="pickAnsiedad(1)" title="Leve">😰</button>
+            <button class="ans-btn" data-v="2" onclick="pickAnsiedad(2)" title="Moderada">😟</button>
+            <button class="ans-btn" data-v="3" onclick="pickAnsiedad(3)" title="Notable">😬</button>
+            <button class="ans-btn" data-v="4" onclick="pickAnsiedad(4)" title="Alta">😤</button>
+            <button class="ans-btn" data-v="5" onclick="pickAnsiedad(5)" title="Muy alta">🤯</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <input type="number" id="v-ansiedad-num" min="1" max="10" placeholder="—" style="width:52px;border:1.5px solid var(--line);border-radius:7px;padding:5px 6px;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:700;text-align:center;background:#fff;outline:none;color:var(--ink);">
+            <span style="font-size:.72rem;color:var(--muted);">/10</span>
+          </div>
+        </div>
+        <div id="ansiedad-lbl" style="font-size:.72rem;color:var(--muted);margin-top:4px;min-height:14px;"></div>
+      </div>
+      <div class="trow"><div class="tlb">Sueño noche anterior <span class="tsub">horas</span></div><div style="display:flex;align-items:center;gap:8px;"><div class="stepper"><button class="sb" onclick="adj('sueno',-0.5)">−</button><input class="sv" type="number" id="v-sueno" value="0" step="0.5" min="0"><button class="sb" onclick="adj('sueno',0.5)">+</button></div><div class="eval"><button class="eval-btn pos" id="ep-sueno" onclick="toggleEval('sueno','pos')">😊</button><button class="eval-btn neg" id="en-sueno" onclick="toggleEval('sueno','neg')">😟</button></div></div></div>
+      <textarea class="tbd" id="n-cuerpo" rows="2" placeholder="Notas sobre el cuerpo hoy…" style="margin-top:8px;padding:0;border:none;background:transparent;"></textarea>
+    </div>
+  </div>
+
+  <div class="tb">
+    <div class="th" onclick="tog('b-ej')"><div class="tic tg">🏃</div><div class="tt">Ejercicio & Movimiento</div><span class="tch open" id="ch-b-ej">▼</span></div>
+    <div class="tbd" id="b-ej">
+      <div class="trow"><div class="tlb">Pasos <span class="tsub">del móvil/reloj</span></div><div style="display:flex;align-items:center;gap:8px;"><div class="stepper"><button class="sb" onclick="adj('pasos',-500)">−</button><input class="sv w" type="number" id="v-pasos" value="0" step="100" min="0"><button class="sb" onclick="adj('pasos',500)">+</button></div><div class="eval"><button class="eval-btn pos" id="ep-pasos" onclick="toggleEval('pasos','pos')">😊</button><button class="eval-btn neg" id="en-pasos" onclick="toggleEval('pasos','neg')">😟</button></div></div></div>
+      <div class="trow"><div class="tlb">¿Has hecho ejercicio?</div><div class="yn"><button class="yb y" id="yn-ej-si" onclick="yn('ej','si')">Sí ✓</button><button class="yb n" id="yn-ej-no" onclick="yn('ej','no')">No ✗</button></div></div>
+      <div class="trow col"><div class="tlb">Tipo</div><div class="chips"><button class="chip" id="ej-caminar" onclick="chip('caminar')">🚶 Caminar</button><button class="chip" id="ej-furia" onclick="chip('furia')">🐕 Paseo Furia</button><button class="chip" id="ej-cardio" onclick="chip('cardio')">💓 Cardio</button><button class="chip" id="ej-fuerza" onclick="chip('fuerza')">💪 Fuerza</button><button class="chip" id="ej-yoga" onclick="chip('yoga')">🧘 Yoga</button><button class="chip" id="ej-otro" onclick="chip('otro')">➕ Otro</button></div></div>
+      <div class="trow"><div class="tlb">Minutos</div><div class="stepper"><button class="sb" onclick="adj('minEj',-5)">−</button><input class="sv" type="number" id="v-minEj" value="0" step="5" min="0"><button class="sb" onclick="adj('minEj',5)">+</button></div></div>
+      <textarea id="n-ej" rows="2" placeholder="¿Qué has hecho? ¿Cómo te has sentido?" style="margin-top:8px;"></textarea>
+    </div>
+  </div>
+
+  <div class="tb">
+    <div class="th" onclick="tog('b-mente')"><div class="tic tp">🧠</div><div class="tt">Mente & Estudio</div><span class="tch open" id="ch-b-mente">▼</span></div>
+    <div class="tbd" id="b-mente">
+      <div class="trow"><div class="tlb">Horas de estudio</div><div style="display:flex;align-items:center;gap:8px;"><div class="stepper"><button class="sb" onclick="adj('hEst',-0.5)">−</button><input class="sv" type="number" id="v-hEst" value="0" step="0.5" min="0"><button class="sb" onclick="adj('hEst',0.5)">+</button></div><div class="eval"><button class="eval-btn pos" id="ep-hEst" onclick="toggleEval('hEst','pos')">😊</button><button class="eval-btn neg" id="en-hEst" onclick="toggleEval('hEst','neg')">😟</button></div></div></div>
+      <div class="trow"><div class="tlb">¿Has leído? <span class="tsub">aunque sean 10 min</span></div><div class="yn"><button class="yb y" id="yn-lee-si" onclick="yn('lee','si')">Sí ✓</button><button class="yb n" id="yn-lee-no" onclick="yn('lee','no')">No ✗</button></div></div>
+      <div class="trow"><div class="tlb">¿Aprendiste algo nuevo?</div><div class="yn"><button class="yb y" id="yn-apr-si" onclick="yn('apr','si')">Sí ✓</button><button class="yb n" id="yn-apr-no" onclick="yn('apr','no')">No ✗</button></div></div>
+      <textarea id="n-mente" rows="2" placeholder="¿Qué has estudiado? ¿Qué has aprendido?" style="margin-top:8px;"></textarea>
+    </div>
+  </div>
+
+  <div class="tb">
+    <div class="th" onclick="tog('b-pan')"><div class="tic tr2">📱</div><div class="tt">Tiempo de pantalla</div><span class="tch open" id="ch-b-pan">▼</span></div>
+    <div class="tbd" id="b-pan">
+      <div class="trow"><div class="tlb">Instagram <span class="tsub">min</span></div><div style="display:flex;align-items:center;gap:8px;"><div class="stepper"><button class="sb" onclick="adj('insta',-5)">−</button><input class="sv" type="number" id="v-insta" value="0" step="5" min="0"><button class="sb" onclick="adj('insta',5)">+</button></div><div class="eval"><button class="eval-btn neg" id="en-insta" onclick="toggleEval('insta','neg')">😟</button><button class="eval-btn pos" id="ep-insta" onclick="toggleEval('insta','pos')">😊</button></div></div></div>
+      <div class="trow"><div class="tlb">TikTok <span class="tsub">min</span></div><div style="display:flex;align-items:center;gap:8px;"><div class="stepper"><button class="sb" onclick="adj('tiktok',-5)">−</button><input class="sv" type="number" id="v-tiktok" value="0" step="5" min="0"><button class="sb" onclick="adj('tiktok',5)">+</button></div><div class="eval"><button class="eval-btn neg" id="en-tiktok" onclick="toggleEval('tiktok','neg')">😟</button><button class="eval-btn pos" id="ep-tiktok" onclick="toggleEval('tiktok','pos')">😊</button></div></div></div>
+      <div class="trow"><div class="tlb">Amazon/Temu/Shein <span class="tsub">min</span></div><div class="stepper"><button class="sb" onclick="adj('compras',-5)">−</button><input class="sv" type="number" id="v-compras" value="0" step="5" min="0"><button class="sb" onclick="adj('compras',5)">+</button></div></div>
+      <div class="trow"><div class="tlb">Total pantalla <span class="tsub">min del día</span></div><div class="stepper"><button class="sb" onclick="adj('panTotal',-10)">−</button><input class="sv w" type="number" id="v-panTotal" value="0" step="10" min="0"><button class="sb" onclick="adj('panTotal',10)">+</button></div></div>
+      <textarea id="n-pan" rows="2" placeholder="¿Cómo te has sentido con el uso del móvil?" style="margin-top:8px;"></textarea>
+    </div>
+  </div>
+
+  <div class="tb">
+    <div class="th" onclick="tog('b-hab')"><div class="tic ty">✨</div><div class="tt">Valoración del día</div><span class="tch open" id="ch-b-hab">▼</span></div>
+    <div class="tbd" id="b-hab">
+      <div class="trow"><div class="tlb">Nota del día ⭐</div><div class="stars" id="s-dia"><button class="str" data-v="1" onclick="star('dia',1)">⭐</button><button class="str" data-v="2" onclick="star('dia',2)">⭐</button><button class="str" data-v="3" onclick="star('dia',3)">⭐</button><button class="str" data-v="4" onclick="star('dia',4)">⭐</button><button class="str" data-v="5" onclick="star('dia',5)">⭐</button></div></div>
+      <div class="trow col"><div class="tlb">Lo mejor de hoy 😊</div><textarea id="n-mejor" rows="2" placeholder="Una cosa buena que ha pasado hoy…" style="margin-top:4px;"></textarea></div>
+      <div class="trow col"><div class="tlb">Lo que mejoraría 🔧</div><textarea id="n-mejorar" rows="2" placeholder="Algo que harías diferente…" style="margin-top:4px;"></textarea></div>
+      <div class="trow col"><div class="tlb">Gratitud 🙏</div><textarea id="n-grat" rows="2" placeholder="Hoy estoy agradecida por…" style="margin-top:4px;"></textarea></div>
+    </div>
+  </div>
+  <button class="btn" onclick="guardarReg()">Guardar registro</button>
+</div>
+
+<!-- ══ WC ══ -->
+<div id="page-wc" class="page">
+  <div style="margin-bottom:14px;"><div class="ph" style="font-size:1.3rem;">Registro WC 🚽</div><div class="ps">hoy · <span id="wc-fecha"></span></div></div>
+  <div class="card">
+    <div class="sh" style="margin-top:0;">Nueva entrada</div>
+    <div class="trow"><div class="tlb">Hora</div><input class="wc-time" type="time" id="wc-hora"></div>
+    <div class="trow"><div class="tlb">Tipo</div><div class="wc-tipo"><button class="wc-t" id="wct-pis" onclick="wcTipo('pis')">💧 Pis</button><button class="wc-t" id="wct-caca" onclick="wcTipo('caca')">💩 Caca</button><button class="wc-t" id="wct-ambos" onclick="wcTipo('ambos')">Ambos</button></div></div>
+    <div class="trow"><div class="tlb">¿Ganas?</div><div class="yn"><button class="yb y" id="yn-ganas-si" onclick="yn('ganas','si')">Sí</button><button class="yb n" id="yn-ganas-no" onclick="yn('ganas','no')">No</button></div></div>
+    <div class="trow col"><div class="tlb">Motivo</div>
+      <div class="wc-motivo">
+        <button class="wc-m ok" id="wm-necesidad" onclick="wcMotivo('necesidad')">✓ Necesidad</button>
+        <button class="wc-m" id="wm-ansiedad" onclick="wcMotivo('ansiedad')">⚡ Ansiedad</button>
+        <button class="wc-m" id="wm-prevision" onclick="wcMotivo('prevision')">🕐 Previsión</button>
+        <button class="wc-m" id="wm-forzar" onclick="wcMotivo('forzar')">Forzar</button>
+      </div>
+    </div>
+    <div style="margin-top:8px;">
+      <div class="tlb" style="margin-bottom:4px;">Emoción antes</div>
+      <textarea id="wc-antes" rows="2" placeholder="¿Cómo te sentías antes de ir?"></textarea>
+    </div>
+    <div style="margin-top:6px;">
+      <div class="tlb" style="margin-bottom:4px;">Emoción durante/después</div>
+      <textarea id="wc-durante" rows="2" placeholder="¿Y durante o después?"></textarea>
+    </div>
+    <button class="wc-add" onclick="addWC()">+ Añadir entrada WC</button>
+  </div>
+  <div class="sh">Entradas de hoy</div>
+  <div id="wc-lista"></div>
+</div>
+
+<!-- ══ SOCIAL ══ -->
+<div id="page-social" class="page">
+  <div style="margin-bottom:14px;"><div class="ph" style="font-size:1.3rem;">Socialización 🤝</div><div class="ps">conexiones de hoy</div></div>
+  <div class="card">
+    <div class="sh" style="margin-top:0;">¿Con quién has conectado hoy?</div>
+    <div class="soc-grid" id="soc-grid">
+      <div class="soc-item" id="soc-yo" onclick="toggleSoc('yo')"><div class="soc-emoji">🪞</div><div class="soc-lbl">Conmigo misma</div></div>
+      <div class="soc-item" id="soc-marco" onclick="toggleSoc('marco')"><div class="soc-emoji">💑</div><div class="soc-lbl">Marco</div></div>
+      <div class="soc-item" id="soc-furia" onclick="toggleSoc('furia')"><div class="soc-emoji">🐕</div><div class="soc-lbl">Furia</div></div>
+      <div class="soc-item" id="soc-familiar" onclick="toggleSoc('familiar')"><div class="soc-emoji">👨‍👩‍👧</div><div class="soc-lbl">Familiar</div></div>
+      <div class="soc-item" id="soc-trabajo" onclick="toggleSoc('trabajo')"><div class="soc-emoji">👷</div><div class="soc-lbl">Gente del trabajo</div></div>
+      <div class="soc-item" id="soc-conocido" onclick="toggleSoc('conocido')"><div class="soc-emoji">👋</div><div class="soc-lbl">Conocido/a</div></div>
+      <div class="soc-item" id="soc-desconocido" onclick="toggleSoc('desconocido')"><div class="soc-emoji">🌍</div><div class="soc-lbl">Desconocido/a</div></div>
+      <div class="soc-item" id="soc-tvredes" onclick="toggleSoc('tvredes')"><div class="soc-emoji">📺</div><div class="soc-lbl">TV / Redes</div></div>
+    </div>
+    <div class="sh" style="margin-top:14px;">Cómo ha ido con cada uno</div>
+    <div id="soc-notas-area"></div>
+    <div class="trow" style="margin-top:8px;"><div class="tlb">Valoración social general</div><div class="eval"><button class="eval-btn pos" id="ep-soc" onclick="toggleEval('soc','pos')">😊 Bien</button><button class="eval-btn neg" id="en-soc" onclick="toggleEval('soc','neg')">😟 Regular</button></div></div>
+  </div>
+  <button class="btn" onclick="guardarSocial()">Guardar socialización</button>
+</div>
+
+<!-- ══ CALENDARIO ══ -->
+<div id="page-calendario" class="page">
+  <div class="cal-nav"><button class="cal-arr" onclick="movMes(-1)">‹</button><div class="cal-mes" id="cal-tit"></div><button class="cal-arr" onclick="movMes(1)">›</button></div>
+  <div class="cal-ley">
+    <div class="cl-i"><div class="cl-d" style="background:var(--day-bg);border:1px solid var(--green)"></div>Día</div>
+    <div class="cl-i"><div class="cl-d" style="background:var(--night-bg)"></div>Noche</div>
+    <div class="cl-i"><div class="cl-d" style="background:var(--exam-bg)"></div>Examen</div>
+    <div class="cl-i"><div class="cl-d" style="background:var(--libre-bg);border:1px solid var(--blue)"></div>Libre</div>
+    <div class="cl-i"><div class="cl-d" style="background:var(--orange);border-radius:50%"></div>Eventos</div>
+    <div class="cl-i"><div class="cl-d" style="background:var(--red);border-radius:50%"></div>Pendiente</div>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div class="dia-det" id="dia-det">
+    <div class="det-tit" id="det-tit"></div>
+    <div id="det-body"></div>
+  </div>
+</div>
+
+<!-- ══ ANDREA ══ -->
+<div id="page-andrea" class="page">
+  <div style="margin-bottom:14px;">
+    <div class="ph" style="font-size:1.4rem;">Andrea 💜</div>
+    <div class="ps">mis tareas y reflexiones de terapia</div>
+  </div>
+
+  <!-- TABS ANDREA -->
+  <div class="itabs">
+    <button class="itab on" id="atab-tareas" onclick="andTab('tareas')">Tareas</button>
+    <button class="itab" id="atab-diario" onclick="andTab('diario')">Diario terapia</button>
+    <button class="itab" id="atab-informe" onclick="andTab('informe')">Informe 📋</button>
+  </div>
+
+  <!-- TAREAS -->
+  <div id="and-tareas">
+    <!-- Nueva tarea -->
+    <div class="card" style="border:2px dashed #d8ccf5;background:#faf8ff;">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#7c3aed;margin-bottom:10px;">+ Nueva tarea de Andrea</div>
+      <input type="text" id="and-tarea-titulo" placeholder="Título (ej: Carta a mi yo del pasado, Yoga 20min...)"
+             style="width:100%;border:1.5px solid #d8ccf5;border-radius:8px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:.85rem;background:#fff;outline:none;color:#1c2b3a;margin-bottom:8px;">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;" id="and-tipo-chips">
+        <button class="chip" id="atipo-yoga" onclick="chipAndTipo('yoga')">🧘 Yoga</button>
+        <button class="chip" id="atipo-meditacion" onclick="chipAndTipo('meditacion')">🌬️ Meditación</button>
+        <button class="chip" id="atipo-carta" onclick="chipAndTipo('carta')">✍️ Carta</button>
+        <button class="chip" id="atipo-respiracion" onclick="chipAndTipo('respiracion')">💨 Respiración</button>
+        <button class="chip" id="atipo-rodillo" onclick="chipAndTipo('rodillo')">🔵 Rodillo</button>
+        <button class="chip" id="atipo-reflexion" onclick="chipAndTipo('reflexion')">💭 Reflexión</button>
+        <button class="chip" id="atipo-ejercicio" onclick="chipAndTipo('ejercicio')">🏃 Ejercicio</button>
+        <button class="chip" id="atipo-otro" onclick="chipAndTipo('otro')">➕ Otro</button>
+      </div>
+      <textarea id="and-tarea-desc" rows="2" placeholder="Descripción o instrucciones de Andrea..."></textarea>
+      <button class="btn" style="margin-top:8px;" onclick="crearTareaAndrea()">Crear tarea</button>
+    </div>
+
+    <!-- Lista de tareas -->
+    <div id="and-tareas-lista"></div>
+  </div>
+
+  <!-- DIARIO TERAPIA -->
+  <div id="and-diario" style="display:none;">
+    <div class="and-list" id="and-list"></div>
+  </div>
+
+  <!-- INFORME PARA ANDREA -->
+  <div id="and-informe" style="display:none;">
+    <div class="card" style="background:#f8f4ff;border-color:#d8ccf5;">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#7c3aed;margin-bottom:10px;">📋 Generar informe para Andrea</div>
+      <div style="font-size:.78rem;color:#6b7a8d;margin-bottom:12px;">Selecciona qué quieres compartir con ella en la próxima sesión:</div>
+
+      <div style="font-size:.72rem;color:#7c3aed;font-weight:700;margin-bottom:8px;">Selecciona qué incluir en el PDF:</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        <label style="display:flex;align-items:center;gap:10px;font-size:.83rem;cursor:pointer;">
+          <input type="checkbox" id="inf-tareas" checked style="width:18px;height:18px;accent-color:#7c3aed;"> <input type="checkbox" id="pdf-tareas" checked style="width:18px;height:18px;accent-color:#7c3aed;display:none;"> Tareas y mis notas
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.83rem;cursor:pointer;">
+          <input type="checkbox" id="inf-emo" checked style="width:18px;height:18px;accent-color:#7c3aed;"> <input type="checkbox" id="pdf-emo" checked style="display:none;"> Estado emocional
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.83rem;cursor:pointer;">
+          <input type="checkbox" id="inf-diario" checked style="width:18px;height:18px;accent-color:#7c3aed;"> <input type="checkbox" id="pdf-diario" checked style="display:none;"> Reflexiones y diario
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.83rem;cursor:pointer;">
+          <input type="checkbox" id="inf-wc" style="width:18px;height:18px;accent-color:#7c3aed;"> <input type="checkbox" id="pdf-wc" style="display:none;"> Registro WC (ansiedad/motivos)
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.83rem;cursor:pointer;">
+          <input type="checkbox" id="inf-habitos" checked style="width:18px;height:18px;accent-color:#7c3aed;"> <input type="checkbox" id="pdf-habitos" checked style="display:none;"> Hábitos (sueño, ejercicio, agua)
+        </label>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.83rem;cursor:pointer;">
+          <input type="checkbox" id="inf-social" style="width:18px;height:18px;accent-color:#7c3aed;"> Socialización
+        </label>
+      </div>
+      <!-- Sincronizar checkboxes pdf con inf -->
+      <script>
+      ['tareas','emo','diario','wc','habitos'].forEach(k=>{
+        const el=document.getElementById('inf-'+k);
+        const pdf=document.getElementById('pdf-'+k);
+        if(el&&pdf) el.addEventListener('change',()=>pdf.checked=el.checked);
+      });
+      </script>
+
+      <div style="margin-bottom:10px;">
+        <div style="font-size:.72rem;font-weight:700;color:#7c3aed;margin-bottom:6px;">Período</div>
+        <div style="display:flex;gap:6px;">
+          <button class="inf-opt on" id="ainf-sem" onclick="selAndInf('sem')">Esta semana</button>
+          <button class="inf-opt" id="ainf-mes" onclick="selAndInf('mes')">Este mes</button>
+          <button class="inf-opt" id="ainf-todo" onclick="selAndInf('todo')">Todo</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:10px;">
+        <div style="font-size:.72rem;font-weight:700;color:#7c3aed;margin-bottom:6px;">📧 Email de Andrea (opcional)</div>
+        <input type="email" id="andrea-email" placeholder="email@andrea.com" style="width:100%;border:1.5px solid #d8ccf5;border-radius:8px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:.83rem;background:#fff;outline:none;color:#1c2b3a;">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" style="flex:2;" onclick="generarInformeAndrea()">✨ Generar informe con IA</button>
+        <button class="btn" style="flex:1;background:#b45309;" onclick="generarPDFAndrea()">📄 PDF directo</button>
+      </div>
+    </div>
+
+    <div id="and-inf-resultado" style="display:none;margin-top:12px;">
+      <div class="card">
+        <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#7c3aed;margin-bottom:8px;">Informe generado</div>
+        <div id="and-inf-texto" style="font-size:.82rem;line-height:1.7;white-space:pre-wrap;color:#1c2b3a;"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+          <button onclick="copiarInforme()" style="flex:1;padding:9px;background:#7c3aed;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;">📋 Copiar</button>
+          <button onclick="compartirInforme()" style="flex:1;padding:9px;background:#059669;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;">📤 Compartir</button>
+          <button onclick="imprimirInforme()" style="flex:1;padding:9px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;">🖨️ Imprimir</button>
+          <button onclick="generarPDFAndrea()" style="flex:1;padding:9px;background:#b45309;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;">📄 PDF Andrea</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAROT ══ -->
+<div id="page-tarot" class="page">
+  <div style="margin-bottom:14px;"><div class="ph" style="font-size:1.4rem;">Tarot & Numerología ✨</div><div class="ps">mi mundo espiritual</div></div>
+
+  <div class="sh">Carta del día 🃏</div>
+  <div class="tarot-card" id="tarot-display">
+    <div class="tarot-icon">🃏</div>
+    <div class="tarot-nombre" id="tarot-nombre">Sin carta hoy</div>
+    <div class="tarot-sig" id="tarot-sig">Escribe tu carta y su significado</div>
+  </div>
+  <div class="card">
+    <div class="trow col"><div class="tlb">Carta del día</div><input type="text" id="tarot-inp-carta" placeholder="Ej: El Sol, La Luna, As de Copas…" style="border:1.5px solid var(--line);border-radius:8px;padding:7px 10px;font-family:'Inter',sans-serif;font-size:.83rem;background:var(--soft);outline:none;color:var(--ink);width:100%;margin-top:4px;"></div>
+    <div class="trow col" style="margin-top:8px;"><div class="tlb">¿Qué te inspira hoy?</div><textarea id="tarot-inp-sig" rows="3" placeholder="Lo que sientes, lo que ves en la carta, lo que te dice…" style="margin-top:4px;"></textarea></div>
+    <div class="trow col" style="margin-top:6px;"><div class="tlb">Oráculo / mensaje del día</div><textarea id="tarot-inp-oraculo" rows="2" placeholder="Mensaje del oráculo, runa, ángel…" style="margin-top:4px;"></textarea></div>
+  </div>
+
+  <div class="sh">Numerología del día 🔢</div>
+  <div class="card">
+    <div class="tlb" style="margin-bottom:8px;">Números especiales de hoy <span class="tsub">horas espejo, matrículas, secuencias…</span></div>
+    <div class="num-chips" id="num-chips-display"></div>
+    <div class="add-ev" style="margin-top:8px;">
+      <input type="text" id="num-inp" placeholder="11:11, 333, matrícula…" style="flex:1;border:1.5px solid var(--line);border-radius:8px;padding:7px 10px;font-family:'Inter',sans-serif;font-size:.82rem;background:var(--soft);outline:none;color:var(--ink);">
+      <button onclick="addNum()" style="padding:7px 12px;background:var(--purple);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:.82rem;">+</button>
+    </div>
+    <textarea id="tarot-inp-num-nota" rows="2" placeholder="¿Qué significado le das a estos números hoy?" style="margin-top:8px;"></textarea>
+  </div>
+  <button class="btn" onclick="guardarTarot()">Guardar tarot & numerología</button>
+</div>
+
+<!-- ══ IA CHAT ══ -->
+<div id="page-ia" class="page">
+  <div style="margin-bottom:12px;"><div class="ph" style="font-size:1.3rem;">Tu espacio de reflexión 💬</div><div class="ps">frase del día + chat con IA</div></div>
+
+  <div class="sh">Frase del día 🌟</div>
+  <div class="frase-card" id="frase-card">
+    <div class="frase-q" id="frase-q">Cargando frase…</div>
+    <div class="frase-autor" id="frase-autor"></div>
+  </div>
+
+  <div class="sh">Informe personal 📋</div>
+  <div class="inf-opts">
+    <button class="inf-opt on" id="inf-dia" onclick="selInf('dia')">Hoy</button>
+    <button class="inf-opt" id="inf-sem" onclick="selInf('sem')">Semana</button>
+    <button class="inf-opt" id="inf-mes" onclick="selInf('mes')">Mes</button>
+  </div>
+  <button class="btn btn-sm" onclick="generarInforme()" style="margin-bottom:10px;width:auto;">Generar informe ✨</button>
+  <div class="inf-result" id="inf-result">Pulsa "Generar informe" para que analice tu progreso y te dé consejos personalizados 🌱</div>
+
+  <div class="sh" style="margin-top:20px;">Chat de reflexión 🌿</div>
+  <div class="chat-box">
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="msg ia"><div class="msg-avatar">🌱</div><div class="msg-bubble">Hola Rebeca 💜 Aquí puedes reflexionar, hablar de cómo te sientes, pedirme consejo o simplemente desahogarte. ¿Por dónde empezamos hoy?</div></div>
+    </div>
+    <div class="chat-input-row">
+      <textarea id="chat-inp" rows="2" placeholder="Escribe aquí…" style="margin:0;"></textarea>
+      <button class="chat-send" id="chat-send" onclick="sendChat()">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ STATS ══ -->
+<div id="page-stats" class="page">
+  <div style="margin-bottom:14px;">
+    <div class="ph" style="font-size:1.4rem;">Mis estadísticas 📊</div>
+    <div class="ps">últimos 7 días</div>
+  </div>
+
+  <!-- COPIA DE SEGURIDAD -->
+  <div style="background:#fff8e1;border:1.5px solid #f59e0b;border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+    <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#92400e;margin-bottom:8px;">💾 Copia de seguridad</div>
+    <div style="font-size:.75rem;color:#78350f;margin-bottom:10px;line-height:1.5;">Exporta tus datos antes de actualizar la app. Guarda el archivo y luego impórtalo en la nueva versión.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="exportarDatos()" style="flex:1;padding:9px;background:#f59e0b;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;">📤 Exportar mis datos</button>
+      <label style="flex:1;padding:9px;background:#0d9488;color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;text-align:center;">
+        📥 Importar datos
+        <input type="file" accept=".json" style="display:none;" onchange="importarDatos(this)">
+      </label>
+    </div>
+    <div id="backup-estado" style="font-size:.72rem;color:#059669;margin-top:6px;text-align:center;min-height:14px;"></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-t">Esta semana</div>
+    <div class="stat-row">
+      <div><div class="sn" id="st-d">0</div><div class="sl">Diario</div></div>
+      <div><div class="sn" id="st-a">0</div><div class="sl">Andrea</div></div>
+      <div><div class="sn" id="st-p">0</div><div class="sl">Pastillas</div></div>
+      <div><div class="sn" id="st-r">0</div><div class="sl">Racha 🔥</div></div>
+    </div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-t">Tendencias · 7 días</div>
+    <div id="trends"></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-t">Estado de ánimo · este mes</div>
+    <div id="humor-bars"></div>
+  </div>
+  <div class="sh">Próximos exámenes</div>
+  <div class="ex-lista" id="ex-lista"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- MÚSICA ESPIRITUAL -->
+<button class="music-toggle" id="music-toggle-btn" onclick="toggleMusicBar()" title="Música">🎵</button>
+<div class="music-bar hidden" id="music-bar">
+  <button class="music-btn" onclick="prevTrack()">⏮</button>
+  <button class="music-btn" id="music-play-btn" onclick="togglePlay()">▶️</button>
+  <button class="music-btn" onclick="nextTrack()">⏭</button>
+  <div class="music-title" id="music-title">Selecciona música</div>
+  <input type="range" class="music-vol" id="music-vol" min="0" max="1" step="0.05" value="0.5" onchange="setVol(this.value)">
+  <button class="music-btn" onclick="toggleMusicBar()">✕</button>
+</div>
+<!-- audio generado por Web Audio API -->
+
+<script>
+// ══ TURNOS ══
+const TURNOS={
+  '2026-06-01':'dia','2026-06-02':'dia','2026-06-03':'dia',
+  '2026-06-04':'libre','2026-06-05':'libre','2026-06-06':'libre','2026-06-07':'libre',
+  '2026-06-08':'dia','2026-06-09':'dia','2026-06-10':'dia','2026-06-11':'dia',
+  '2026-06-12':'libre','2026-06-13':'libre',
+  '2026-06-14':'noche','2026-06-15':'noche','2026-06-16':'noche',
+  '2026-06-17':'libre','2026-06-18':'libre','2026-06-19':'libre',
+  '2026-06-20':'dia','2026-06-21':'dia','2026-06-22':'dia','2026-06-23':'dia','2026-06-24':'dia','2026-06-25':'dia','2026-06-26':'dia','2026-06-27':'dia',
+  '2026-06-28':'libre','2026-06-29':'libre','2026-06-30':'noche',
+  '2026-07-01':'noche','2026-07-02':'noche','2026-07-03':'noche',
+  '2026-07-04':'libre','2026-07-05':'libre','2026-07-06':'libre','2026-07-07':'libre','2026-07-08':'libre','2026-07-09':'libre','2026-07-10':'libre',
+  '2026-07-11':'dia','2026-07-12':'dia','2026-07-13':'dia',
+  '2026-07-14':'libre','2026-07-15':'libre','2026-07-16':'libre','2026-07-17':'libre',
+  '2026-07-18':'noche','2026-07-19':'noche','2026-07-20':'noche','2026-07-21':'noche','2026-07-22':'noche','2026-07-23':'noche','2026-07-24':'noche',
+  '2026-07-25':'libre','2026-07-26':'libre','2026-07-27':'libre','2026-07-28':'libre','2026-07-29':'libre',
+  '2026-07-30':'noche','2026-07-31':'noche',
+  '2026-08-01':'dia','2026-08-02':'dia','2026-08-03':'dia','2026-08-04':'dia','2026-08-05':'dia','2026-08-06':'dia',
+  '2026-08-07':'libre','2026-08-08':'libre','2026-08-09':'libre','2026-08-10':'libre','2026-08-11':'libre','2026-08-12':'libre','2026-08-13':'libre',
+  '2026-08-14':'noche','2026-08-15':'noche',
+  '2026-08-16':'libre','2026-08-17':'libre','2026-08-18':'libre','2026-08-19':'libre','2026-08-20':'libre',
+  '2026-08-21':'dia','2026-08-22':'dia','2026-08-23':'dia','2026-08-24':'dia','2026-08-25':'dia',
+  '2026-08-26':'libre','2026-08-27':'libre',
+  '2026-08-28':'noche','2026-08-29':'noche',
+  '2026-08-30':'dia','2026-08-31':'libre',
+  '2026-09-01':'libre','2026-09-02':'libre','2026-09-03':'libre',
+  '2026-09-04':'noche','2026-09-05':'noche','2026-09-06':'noche','2026-09-07':'noche','2026-09-08':'noche','2026-09-09':'noche','2026-09-10':'noche',
+  '2026-09-11':'libre','2026-09-12':'libre','2026-09-13':'libre','2026-09-14':'libre','2026-09-15':'libre',
+  '2026-09-16':'dia','2026-09-17':'dia',
+  '2026-09-18':'libre','2026-09-19':'libre','2026-09-20':'libre','2026-09-21':'libre','2026-09-22':'libre','2026-09-23':'libre','2026-09-24':'libre',
+  '2026-09-25':'noche','2026-09-26':'noche','2026-09-27':'noche','2026-09-28':'noche','2026-09-29':'noche',
+  '2026-09-30':'libre'
+};
+const EXAMENES=[
+  {f:'2026-09-02',a:'Derecho Civil III · Derechos Reales e Hipotecario',h:'09:00',l:'Calatayud'},
+  {f:'2026-09-03',a:'Derecho Procesal II + Derecho Internacional Público',h:'09:00',l:'Calatayud'},
+  {f:'2026-09-04',a:'Teoría del Derecho + Derecho Público Internacional',h:'09:00',l:'Calatayud'},
+  {f:'2026-09-05',a:'Teoría del Estado Constitucional + Derecho Financiero I',h:'09:00',l:'Calatayud'},
+];
+const FRASES=[
+  {q:'El momento presente siempre será.',a:'Eckhart Tolle'},
+  {q:'No puedes volver atrás y cambiar el principio, pero puedes empezar donde estás y cambiar el final.',a:'C.S. Lewis'},
+  {q:'Cuídate a ti misma primero. No puedes servir desde un recipiente vacío.',a:'Eleanor Brown'},
+  {q:'Los hábitos son la compound interest del autodesarrollo.',a:'James Clear'},
+  {q:'Cada día es una nueva oportunidad de cambiar tu vida.',a:'Anónimo'},
+  {q:'La disciplina es elegirte a ti misma una y otra vez.',a:'Anónimo'},
+  {q:'Confía en el proceso, incluso cuando no puedas ver el resultado.',a:'Anónimo'},
+  {q:'Tu única competencia eres tú misma de ayer.',a:'Anónimo'},
+  {q:'El dolor que sientes hoy será la fuerza que sentirás mañana.',a:'Anónimo'},
+  {q:'No se trata de ser perfecta. Se trata de ser honesta.',a:'Anónimo'},
+  {q:'Lo que resistes, persiste. Lo que aceptas, se transforma.',a:'Carl Jung'},
+  {q:'Eres más valiente de lo que crees, más fuerte de lo que pareces.',a:'A.A. Milne'},
+];
+const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MESC=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+// ══ STORAGE ══
+const DB='rebeca_data'; // clave fija, nunca cambiará
+
+// Migración automática desde versiones anteriores
+(function migrar(){
+  const claves_viejas = ['rebeca_v1','rebeca_v2','rebeca_v3','rebeca_v4'];
+  // Si ya hay datos nuevos no hacer nada
+  if(localStorage.getItem(DB)) return;
+  // Buscar en claves viejas, coger la más reciente con datos
+  for(const c of claves_viejas.reverse()){
+    const v = localStorage.getItem(c);
+    if(v){
+      try{
+        localStorage.setItem(DB, v);
+        console.log('Datos migrados desde '+c);
+        return;
+      }catch(e){}
+    }
+  }
+})();
+function load(){try{return JSON.parse(localStorage.getItem(DB)||'{}');}catch{return{};}}
+function save(d){try{localStorage.setItem(DB,JSON.stringify(d));}catch(e){toast('⚠️ Storage lleno, borra fotos antiguas');}}
+function pz(n){return String(n).padStart(2,'0');}
+function key(d){return`${d.getFullYear()}-${pz(d.getMonth()+1)}-${pz(d.getDate())}`;}
+function now(){return new Date();}
+function today(){return key(now());}
+
+// ══ ESTADO ══
+let humor=null,ynS={},starS={},ejS=new Set(),evalS={},socS=new Set(),fotos=[],wcTipoS=null,wcMotivoS=null,numsHoy=[],infPeriodo='dia',chatHist=[];
+
+// ══ NAV ══
+function goTo(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb2').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  const renders={andrea:renderAndrea,stats:renderStats,calendario:renderCal,registro:renderReg,wc:renderWC,social:renderSocial,tarot:renderTarot,ia:renderIA};
+  if(renders[id])renders[id]();
+}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
+
+// ══ SECCIONES ══
+function tog(id){const b=document.getElementById(id),ch=document.getElementById('ch-'+id);if(b.classList.contains('hid')){b.classList.remove('hid');ch.classList.add('open');}else{b.classList.add('hid');ch.classList.remove('open');}}
+
+// ══ CONTROLES ══
+function adj(c,d){const el=document.getElementById('v-'+c);if(!el)return;let v=parseFloat(el.value)||0;el.value=Math.max(0,Math.round((v+d)*10)/10);}
+function yn(c,v){ynS[c]=v;['si','no'].forEach(s=>{const el=document.getElementById('yn-'+c+'-'+s);if(el){el.classList.remove('on');if(s===v)el.classList.add('on');}});}
+function star(c,v){starS[c]=v;document.querySelectorAll('#s-'+c+' .str').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)<=v));}
+function chip(t){ejS.has(t)?ejS.delete(t):ejS.add(t);document.getElementById('ej-'+t).classList.toggle('on',ejS.has(t));}
+function pickH(v){humor=v;document.querySelectorAll('.hb').forEach(b=>b.classList.remove('on'));document.querySelector(`.hb[data-v="${v}"]`).classList.add('on');}
+function toggleEval(c,t){const k=c+'_'+t,other=c+'_'+(t==='pos'?'neg':'pos');if(evalS[k]){delete evalS[k];document.getElementById((t==='pos'?'ep':'en')+'-'+c).classList.remove('on');}else{evalS[k]=true;evalS[other]=false;document.getElementById((t==='pos'?'ep':'en')+'-'+c).classList.add('on');document.getElementById((t==='pos'?'en':'ep')+'-'+c)?.classList.remove('on');}}
+function toggleSoc(s){socS.has(s)?socS.delete(s):socS.add(s);document.getElementById('soc-'+s).classList.toggle('on',socS.has(s));}
+
+// ══ ANSIEDAD — una sola carita toggle + número ══
+const ANS_LABELS={1:'Leve',2:'Moderada',3:'Notable',4:'Alta',5:'Muy alta'};
+function pickAnsiedad(v){
+  const lbl=document.getElementById('ansiedad-lbl');
+  if(starS.ansiedad===v){
+    delete starS.ansiedad;
+    document.querySelectorAll('.ans-btn').forEach(b=>b.classList.remove('on'));
+    if(lbl)lbl.textContent='';
+  } else {
+    starS.ansiedad=v;
+    document.querySelectorAll('.ans-btn').forEach(b=>b.classList.remove('on'));
+    document.querySelector(`.ans-btn[data-v="${v}"]`)?.classList.add('on');
+    if(lbl)lbl.textContent=ANS_LABELS[v]||'';
+  }
+}
+
+// ══ EMOCIONES RÁPIDAS CON HORA ══
+let emoSel=null;
+function pickEmo(e){
+  emoSel=emoSel===e?null:e;
+  document.querySelectorAll('.emo-quick').forEach(b=>b.classList.toggle('on',b.dataset.e===emoSel));
+  actualizarHoraLbl();
+}
+function actualizarHoraLbl(){
+  const el=document.getElementById('hora-estado-lbl');
+  if(el){const n=new Date();el.textContent=`Ahora: ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')} · ${n.getDate()} ${MESES[n.getMonth()]}`;}
+}
+function guardarEmo(){
+  if(!emoSel){toast('Selecciona un estado primero');return;}
+  const n=new Date();
+  const entry={emo:emoSel,porque:document.getElementById('emo-porque').value.trim(),hora:`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`,ts:Date.now()};
+  const k=today();const data=load();if(!data[k])data[k]={};if(!data[k].emos)data[k].emos=[];
+  data[k].emos.push(entry);save(data);
+  document.getElementById('emo-porque').value='';
+  emoSel=null;document.querySelectorAll('.emo-quick').forEach(b=>b.classList.remove('on'));
+  renderEmoHoy();toast('✓ Estado registrado');
+}
+function renderEmoHoy(){
+  actualizarHoraLbl();
+  const el=document.getElementById('emo-historial-hoy');if(!el)return;
+  const data=load();const emos=(data[today()]?.emos)||[];
+  if(!emos.length){el.innerHTML='';return;}
+  const EMO_EMOJI={triste:'😢',ansiosa:'😰',enfadada:'😠',alegre:'😊',tranquila:'😌',cansada:'😴',frustrada:'😤',neutral:'😐'};
+  el.innerHTML=`<div style="font-size:.65rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Hoy registrado</div>`+
+  emos.slice().reverse().map((e,i)=>`
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);">
+      <span style="font-size:1.1rem;">${EMO_EMOJI[e.emo]||'💭'}</span>
+      <div style="flex:1;">
+        <span style="font-size:.8rem;font-weight:700;color:var(--ink);">${e.emo.charAt(0).toUpperCase()+e.emo.slice(1)}</span>
+        <span style="font-size:.72rem;color:var(--muted);margin-left:6px;">${e.hora}</span>
+        ${e.porque?`<div style="font-size:.75rem;color:var(--muted);margin-top:2px;">${e.porque}</div>`:''}
+      </div>
+      <button onclick="delEmo(${emos.length-1-i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:2px;">✕</button>
+    </div>`).join('');
+}
+function delEmo(i){const k=today();const data=load();if(data[k]?.emos){data[k].emos.splice(i,1);save(data);renderEmoHoy();}}
+
+// ══ STAR TOGGLE (toca de nuevo para borrar) ══
+function starToggle(c,v){
+  if(starS[c]===v){// misma carita => borrar
+    delete starS[c];
+    document.querySelectorAll('#s-'+c+' .str').forEach(b=>b.classList.remove('on'));
+  } else {
+    starS[c]=v;
+    document.querySelectorAll('#s-'+c+' .str').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)<=v));
+  }
+}
+
+// ══ SOCIAL NOTAS DINÁMICAS ══
+const SOC_ITEMS=[
+  {id:'yo',  emoji:'🪞', lbl:'Conmigo misma'},
+  {id:'marco',emoji:'💑',lbl:'Marco'},
+  {id:'furia',emoji:'🐕',lbl:'Furia'},
+  {id:'familiar',emoji:'👨‍👩‍👧',lbl:'Familiar'},
+  {id:'trabajo',emoji:'👷',lbl:'Gente del trabajo'},
+  {id:'conocido',emoji:'👋',lbl:'Conocido/a'},
+  {id:'desconocido',emoji:'🌍',lbl:'Desconocido/a'},
+  {id:'tvredes',emoji:'📺',lbl:'TV / Redes'},
+];
+function renderSocNotas(){
+  const area=document.getElementById('soc-notas-area');
+  if(!area)return;
+  const data=load();const k=today();const s=data[k]?.social||{};
+  area.innerHTML=SOC_ITEMS.map(item=>{
+    const val=s['eval_'+item.id]||'';
+    const nota=s['n_'+item.id]||'';
+    return`<div style="border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:.85rem;font-weight:700;">${item.emoji} ${item.lbl}</span>
+        <div style="display:flex;gap:4px;">
+          <button onclick="setSocEval('${item.id}','pos')" style="border:1.5px solid ${val==='pos'?'var(--green)':'var(--line)'};background:${val==='pos'?'#d1fae5':'#fff'};border-radius:7px;padding:3px 8px;cursor:pointer;font-size:.85rem;">😊</button>
+          <button onclick="setSocEval('${item.id}','neg')" style="border:1.5px solid ${val==='neg'?'var(--red)':'var(--line)'};background:${val==='neg'?'#fee2e2':'#fff'};border-radius:7px;padding:3px 8px;cursor:pointer;font-size:.85rem;">😟</button>
+          <button onclick="setSocEval('${item.id}','')" style="border:1.5px solid var(--line);background:#fff;border-radius:7px;padding:3px 8px;cursor:pointer;font-size:.72rem;color:var(--muted);">✕</button>
+        </div>
+      </div>
+      <textarea id="n-soc-${item.id}" rows="2" placeholder="¿Cómo ha ido con ${item.lbl.toLowerCase()}? ¿Qué sientes al respecto?" style="width:100%;border:1.5px solid var(--line);border-radius:7px;padding:7px 9px;font-family:'Inter',sans-serif;font-size:.8rem;resize:none;background:var(--soft);outline:none;color:var(--ink);">${nota}</textarea>
+    </div>`;
+  }).join('');
+}
+function setSocEval(id,val){
+  const k=today();const data=load();if(!data[k])data[k]={};if(!data[k].social)data[k].social={};
+  data[k].social['eval_'+id]=val;save(data);renderSocNotas();
+}
+
+// ══ WC ══
+function wcTipo(t){wcTipoS=t;document.querySelectorAll('.wc-t').forEach(b=>b.classList.remove('on'));document.getElementById('wct-'+t)?.classList.add('on');}
+function wcMotivo(m){wcMotivoS=m;document.querySelectorAll('.wc-m').forEach(b=>b.classList.remove('on'));const el=document.getElementById('wm-'+m);if(el){el.classList.add('on');}}
+function addWC(){
+  const hora=document.getElementById('wc-hora').value||new Date().toTimeString().slice(0,5);
+  const entry={hora,tipo:wcTipoS,ganas:ynS.ganas,motivo:wcMotivoS,antes:document.getElementById('wc-antes').value,durante:document.getElementById('wc-durante').value,ts:Date.now()};
+  const k=today();const data=load();if(!data[k])data[k]={};if(!data[k].wc)data[k].wc=[];
+  data[k].wc.push(entry);save(data);
+  document.getElementById('wc-antes').value='';document.getElementById('wc-durante').value='';
+  wcTipoS=null;wcMotivoS=null;ynS.ganas=null;
+  document.querySelectorAll('.wc-t,.wc-m').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('#yn-ganas-si,#yn-ganas-no').forEach(b=>b.classList.remove('on'));
+  renderWC();toast('✓ Entrada WC guardada');
+}
+function renderWC(){
+  document.getElementById('wc-fecha').textContent=now().getDate()+' '+MESES[now().getMonth()];
+  const data=load();const wcs=(data[today()]?.wc)||[];
+  const lista=document.getElementById('wc-lista');
+  if(!wcs.length){lista.innerHTML='<div class="empty"><div class="empty-i">🚽</div>Sin entradas hoy</div>';return;}
+  const motivoEmoji={necesidad:'✓',ansiedad:'⚡',prevision:'🕐',forzar:'💪'};
+  const tipoEmoji={pis:'💧',caca:'💩',ambos:'💧💩'};
+  lista.innerHTML=wcs.map((w,i)=>`
+    <div class="wc-entry">
+      <div class="wc-row">
+        <strong>${w.hora}</strong> ${tipoEmoji[w.tipo]||'?'} ${w.motivo?motivoEmoji[w.motivo]+'<span style="font-size:.7rem;color:var(--muted)"> '+w.motivo+'</span>':''} ${w.ganas==='si'?'<span style="font-size:.7rem;color:var(--green)">✓ ganas</span>':w.ganas==='no'?'<span style="font-size:.7rem;color:var(--red)">sin ganas</span>':''}
+        <button onclick="delWC(${i})" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;">✕</button>
+      </div>
+      ${w.antes?`<div style="font-size:.75rem;color:var(--muted)">Antes: ${w.antes}</div>`:''}
+      ${w.durante?`<div style="font-size:.75rem;color:var(--muted)">Después: ${w.durante}</div>`:''}
+    </div>`).join('');
+}
+function delWC(i){const data=load();const k=today();if(data[k]?.wc){data[k].wc.splice(i,1);save(data);renderWC();}}
+
+// ══ EVENTOS ══
+function addEvHoy(){
+  const inp=document.getElementById('ev-hoy-inp');const txt=inp.value.trim();if(!txt)return;
+  const tipo=document.getElementById('ev-hoy-tipo').value;
+  const k=today();const data=load();if(!data[k])data[k]={};if(!data[k].eventos)data[k].eventos=[];
+  data[k].eventos.push({txt,tipo,done:false,ts:Date.now()});save(data);inp.value='';renderEvHoy();
+}
+function toggleEvDone(i){
+  const k=today();const data=load();if(data[k]?.eventos){data[k].eventos[i].done=!data[k].eventos[i].done;save(data);renderEvHoy();renderCal();}
+}
+function delEv(i){const k=today();const data=load();if(data[k]?.eventos){data[k].eventos.splice(i,1);save(data);renderEvHoy();renderCal();}}
+function renderEvHoy(){
+  const data=load();const evs=(data[today()]?.eventos)||[];
+  const lista=document.getElementById('ev-hoy-list');
+  const tipoIcon={evento:'📅',recuerda:'💭'};
+  if(!evs.length){lista.innerHTML='<div style="font-size:.78rem;color:var(--muted);padding:4px 0;">Sin eventos hoy. Añade uno abajo.</div>';return;}
+  lista.innerHTML=evs.map((e,i)=>`
+    <div class="ev-item">
+      <div class="ev-check ${e.done?'done':'pend'}" onclick="toggleEvDone(${i})">${e.done?'✓':''}</div>
+      <span style="font-size:.8rem;">${tipoIcon[e.tipo]||'📌'}</span>
+      <span class="ev-txt ${e.done?'done-txt':''}">${e.txt}</span>
+      <button class="ev-del" onclick="delEv(${i})">✕</button>
+    </div>`).join('');
+}
+
+// ══ FOTO + IA ══
+let fotoBase64=null, fotoMime='image/jpeg';
+
+// ── FOTO / PDF → IA ──
+function cargarFotoDesdeDataURL(dataURL, mime){
+  fotoMime = mime || 'image/jpeg';
+  fotoBase64 = dataURL.split(',')[1];
+  document.getElementById('foto-preview-img').src = dataURL;
+  document.getElementById('foto-preview').style.display = 'block';
+  document.getElementById('btn-analizar').style.display = 'block';
+  document.getElementById('foto-estado').textContent = '✓ Imagen lista — pulsa "Analizar con IA"';
+  document.getElementById('ia-result-box').style.display = 'none';
+}
+
+function addFotoDesdeInput(inp){
+  const file = inp.files[0];
+  if(!file){ return; }
+  // PDF → convertir a imagen usando canvas no es posible directamente;
+  // Para PDF enviamos como documento a la API
+  if(file.type === 'application/pdf'){
+    const reader = new FileReader();
+    reader.onload = e => {
+      fotoBase64 = e.target.result.split(',')[1];
+      fotoMime = 'application/pdf';
+      document.getElementById('foto-preview').style.display = 'none';
+      document.getElementById('btn-analizar').style.display = 'block';
+      document.getElementById('foto-estado').textContent = '📄 PDF listo — pulsa "Analizar con IA"';
+      document.getElementById('ia-result-box').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  } else {
+    const reader = new FileReader();
+    reader.onload = e => cargarFotoDesdeDataURL(e.target.result, file.type);
+    reader.readAsDataURL(file);
+  }
+  inp.value = '';
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  const lbl = document.getElementById('foto-label');
+  if(lbl) lbl.style.background='#f0fdfb';
+  const file = e.dataTransfer.files[0];
+  if(!file) return;
+  if(file.type.startsWith('image/') || file.type === 'application/pdf'){
+    addFotoDesdeInputFile(file);
+  }
+}
+
+function addFotoDesdeInputFile(file){
+  if(file.type === 'application/pdf'){
+    const r = new FileReader();
+    r.onload = e => {
+      fotoBase64 = e.target.result.split(',')[1];
+      fotoMime = 'application/pdf';
+      document.getElementById('foto-preview').style.display = 'none';
+      document.getElementById('btn-analizar').style.display = 'block';
+      document.getElementById('foto-estado').textContent = '📄 PDF listo — pulsa "Analizar con IA"';
+    };
+    r.readAsDataURL(file);
+  } else {
+    const r = new FileReader();
+    r.onload = e => cargarFotoDesdeDataURL(e.target.result, file.type);
+    r.readAsDataURL(file);
+  }
+}
+
+document.addEventListener('paste', function(e){
+  if(!document.getElementById('page-registro').classList.contains('active')) return;
+  const items = e.clipboardData?.items || [];
+  for(const item of items){
+    if(item.type.startsWith('image/')){
+      const file = item.getAsFile();
+      const r = new FileReader();
+      r.onload = ev => cargarFotoDesdeDataURL(ev.target.result, item.type);
+      r.readAsDataURL(file);
+      toast('📷 Imagen pegada — pulsa Analizar');
+      return;
+    }
+  }
+});
+
+function borrarFoto(){
+  fotoBase64 = null; fotoMime = 'image/jpeg';
+  document.getElementById('foto-preview').style.display = 'none';
+  document.getElementById('btn-analizar').style.display = 'none';
+  document.getElementById('foto-estado').textContent = '';
+  document.getElementById('ia-result-box').style.display = 'none';
+  const inp = document.getElementById('foto-inp-hidden');
+  if(inp) inp.value = '';
+}
+
+async function analizarFoto(){
+  if(!fotoBase64){toast('Primero sube una foto');return;}
+  const btn=document.getElementById('btn-analizar');
+  const estado=document.getElementById('foto-estado');
+  btn.disabled=true;
+  estado.textContent='🔍 Analizando foto…';
+
+  try{
+    // Construir el contenido según tipo de archivo
+    let msgContent;
+    if(fotoMime === 'application/pdf'){
+      msgContent = [
+        {type:'document', source:{type:'base64', media_type:'application/pdf', data:fotoBase64}},
+        {type:'text', text:'Extrae TODOS los datos de salud que aparezcan en este documento (báscula, reloj, app de macros, Yazio, MyFitnessPal, etc.). Devuelve SOLO JSON válido sin markdown: {"peso":número_kg, "imc":número, "grasa_corporal":número_%, "musculo":número_%, "agua_corporal":número_%, "hueso":número_kg, "metabolismo_basal":número_kcal, "edad_corporal":número, "pasos":número, "calorias_consumidas":número, "calorias_quemadas":número, "proteinas":número_g, "carbohidratos":número_g, "grasas":número_g, "distancia":número_km, "sueño_horas":número, "sueño_profundo":número_min, "frecuencia_cardiaca":número_bpm, "spo2":número_%, "estres":número, "otros":{"campo":"valor"}, "resumen":"análisis en español de los datos para una mujer adulta que quiere mejorar su salud"}'}
+      ];
+    } else {
+      msgContent = [
+        {type:'image', source:{type:'base64', media_type:fotoMime, data:fotoBase64}},
+        {type:'text', text:'Extrae TODOS los datos de salud que veas en esta imagen (báscula inteligente, reloj, app de macros, Yazio, MyFitnessPal, capturas de móvil, etc.). Devuelve SOLO JSON válido sin markdown: {"peso":número_kg, "imc":número, "grasa_corporal":número_%, "musculo":número_%, "agua_corporal":número_%, "hueso":número_kg, "metabolismo_basal":número_kcal, "edad_corporal":número, "pasos":número, "calorias_consumidas":número, "calorias_quemadas":número, "proteinas":número_g, "carbohidratos":número_g, "grasas":número_g, "distancia":número_km, "sueño_horas":número, "sueño_profundo":número_min, "frecuencia_cardiaca":número_bpm, "spo2":número_%, "estres":número, "otros":{"campo":"valor"}, "resumen":"análisis en español de los datos para una mujer adulta que quiere mejorar su salud"}'}
+      ];
+    }
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:900,
+        system:'Eres un asistente especializado en extraer datos de salud de imágenes, capturas de pantalla y documentos de apps de salud, básculas inteligentes y relojes. Responde SOLO con JSON válido, sin markdown, sin explicaciones previas ni posteriores.',
+        messages:[{role:'user', content:msgContent}]
+      })
+    });
+    const data=await resp.json();
+    const txt=data.content?.[0]?.text||'{}';
+    let parsed={};
+    try{parsed=JSON.parse(txt);}catch(e){parsed={resumen:'No pude leer los datos de la imagen. Prueba con una foto más clara.'};}
+    mostrarDatosIA(parsed);
+  }catch(e){
+    estado.textContent='⚠️ Error de conexión. Inténtalo de nuevo.';
+  }
+  btn.disabled=false;
+}
+
+const DATO_MAP={
+  peso:{lbl:'Peso',unit:'kg',campo:'peso'},
+  imc:{lbl:'IMC',unit:'',campo:null},
+  grasa_corporal:{lbl:'Grasa corporal',unit:'%',campo:null},
+  musculo:{lbl:'Músculo',unit:'%',campo:null},
+  agua_corporal:{lbl:'Agua corporal',unit:'%',campo:null},
+  hueso:{lbl:'Masa ósea',unit:'kg',campo:null},
+  metabolismo_basal:{lbl:'Metabolismo basal',unit:'kcal',campo:null},
+  edad_corporal:{lbl:'Edad corporal',unit:'años',campo:null},
+  pasos:{lbl:'Pasos',unit:'',campo:'pasos'},
+  calorias_consumidas:{lbl:'Calorías consumidas',unit:'kcal',campo:null},
+  calorias_quemadas:{lbl:'Calorías quemadas',unit:'kcal',campo:null},
+  proteinas:{lbl:'Proteínas',unit:'g',campo:null},
+  carbohidratos:{lbl:'Carbohidratos',unit:'g',campo:null},
+  grasas:{lbl:'Grasas',unit:'g',campo:null},
+  distancia:{lbl:'Distancia',unit:'km',campo:null},
+  sueño_horas:{lbl:'Sueño',unit:'h',campo:'sueno'},
+  sueño_profundo:{lbl:'Sueño profundo',unit:'min',campo:null},
+  frecuencia_cardiaca:{lbl:'Frec. cardíaca',unit:'bpm',campo:null},
+  spo2:{lbl:'SpO2',unit:'%',campo:null},
+  estres:{lbl:'Estrés',unit:'',campo:null},
+};
+
+function mostrarDatosIA(parsed){
+  const box=document.getElementById('ia-result-box');
+  const chips=document.getElementById('datos-chips');
+  const resumenEl=document.getElementById('ia-resumen');
+  const estado=document.getElementById('foto-estado');
+
+  let chipsHtml='';
+  Object.entries(DATO_MAP).forEach(([key,info])=>{
+    if(parsed[key]!==undefined&&parsed[key]!==null){
+      const val=parsed[key];
+      const clickable=info.campo?`onclick="aplicarDato('${info.campo}',${val},this)"`:'';;
+      chipsHtml+=`<div class="dato-chip" ${clickable} title="${info.campo?'Toca para rellenar en el registro':''}">
+        <span class="dc-lbl">${info.lbl}${info.campo?' · toca para rellenar':''}</span>
+        <span class="dc-val">${val} ${info.unit}</span>
+      </div>`;
+    }
+  });
+  // Otros datos
+  if(parsed.otros){
+    Object.entries(parsed.otros).forEach(([k,v])=>{
+      chipsHtml+=`<div class="dato-chip"><span class="dc-lbl">${k}</span><span class="dc-val">${v}</span></div>`;
+    });
+  }
+
+  chips.innerHTML=chipsHtml||'<span style="font-size:.78rem;color:var(--muted);">No se detectaron datos numéricos</span>';
+  resumenEl.innerHTML=parsed.resumen?`<div style="font-size:.8rem;line-height:1.6;color:#334;">${parsed.resumen}</div>`:'';
+  box.style.display='block';
+  estado.textContent='✓ Análisis completado';
+}
+
+function aplicarDato(campo,valor,el){
+  const input=document.getElementById('v-'+campo);
+  if(input){input.value=valor;el.classList.add('aplicado');el.querySelector('.dc-lbl').textContent+=' ✓';toast('✓ '+valor+' aplicado al registro');}
+}
+
+// ══ HOY ══
+function renderHoy(){
+  const n=now();const k=today();const t=TURNOS[k]||'libre';
+  document.getElementById('f-hoy').textContent=`${n.getDate()} de ${MESES[n.getMonth()]}`;
+  document.getElementById('f-dia').textContent=DIAS[n.getDay()].toUpperCase()+' · '+n.getFullYear();
+  const tc=document.getElementById('turno-card');
+  if(t==='dia')tc.innerHTML=`<div class="tcard td"><div class="tlbl">☀️ Turno de día · Torraspapel</div><div class="thrs">06:00 → 18:00</div><div class="bls"><span class="bl bl-a">🍽 Comida ~1h</span><span class="bl bl-b">💜 Deberes Andrea ~30min</span></div></div>`;
+  else if(t==='noche')tc.innerHTML=`<div class="tcard tn"><div class="tlbl">🌙 Turno de noche · Torraspapel</div><div class="thrs">18:00 → 06:00</div><div class="bls"><span class="bl bl-a">🍽 Comida ~1h</span><span class="bl bl-b">💜 Deberes Andrea</span></div></div>`;
+  else tc.innerHTML=`<div class="tcard tl"><div class="tlbl">🌿 Día libre</div><div class="thrs">Descansa 🌱</div><div class="bls"><span class="bl bl-c">Sin turno hoy</span></div></div>`;
+  const ex=EXAMENES.find(e=>e.f===k);
+  const ec=document.getElementById('examen-card');
+  if(ex)ec.innerHTML=`<div class="exh"><div class="exh-l">🎓 EXAMEN HOY</div><div class="exh-n">${ex.a}</div><div class="exh-h">${ex.h} · ${ex.l}</div></div>`;
+  else ec.innerHTML='';
+  const data=load();
+  if(data[k]){document.getElementById('txt-diario').value=data[k].diario||'';}
+  renderEvHoy();
+  renderEmoHoy();
+}
+function guardarHoy(){
+  const k=today();const data=load();if(!data[k])data[k]={};
+  data[k].diario=document.getElementById('txt-diario').value;
+  data[k].ts=Date.now();save(data);toast('✓ Diario guardado');
+}
+
+// ══ REGISTRO ══
+function renderReg(){
+  document.getElementById('reg-tit').textContent=now().getDate()+' de '+MESES[now().getMonth()];
+  const k=today();const data=load();const r=data[k]?.reg||{};
+  fotos=r.fotos||[];renderFotoGrid();
+  ['peso','agua','wc2','pasos','hEst','insta','tiktok','compras','panTotal','minEj','sueno'].forEach(f=>{const el=document.getElementById('v-'+f);if(el&&r[f]!==undefined)el.value=r[f];});
+  ynS={};['past','ej','lee','apr'].forEach(f=>{if(r['yn_'+f])yn(f,r['yn_'+f]);});
+  starS={};['ansiedad','dia'].forEach(f=>{if(r['st_'+f])star(f,r['st_'+f]);});
+  evalS={};Object.keys(r).filter(k=>k.startsWith('ev_')).forEach(k=>{evalS[k.slice(3)]=true;});
+  ejS=new Set(r.chips||[]);['caminar','furia','cardio','fuerza','yoga','otro'].forEach(t=>{document.getElementById('ej-'+t)?.classList.toggle('on',ejS.has(t));});
+  ['cuerpo','ej','mente','pan','mejor','mejorar','grat'].forEach(f=>{const el=document.getElementById('n-'+f);if(el)el.value=r['n_'+f]||'';});
+}
+function guardarReg(){
+  const k=today();const data=load();if(!data[k])data[k]={};
+  const r={};
+  ['peso','agua','pasos','hEst','insta','tiktok','compras','panTotal','minEj','sueno'].forEach(f=>{const el=document.getElementById('v-'+f);if(el)r[f]=parseFloat(el.value)||0;});
+  const anNum=document.getElementById('v-ansiedad-num');if(anNum&&anNum.value)r.ansiedad_num=parseInt(anNum.value);
+  ['past','ej','lee','apr'].forEach(f=>{if(ynS[f])r['yn_'+f]=ynS[f];});
+  ['ansiedad','dia'].forEach(f=>{if(starS[f])r['st_'+f]=starS[f];});
+  Object.keys(evalS).forEach(k=>{if(evalS[k])r['ev_'+k]=true;});
+  r.chips=[...ejS];
+  ['cuerpo','ej','mente','pan','mejor','mejorar','grat'].forEach(f=>{const el=document.getElementById('n-'+f);if(el)r['n_'+f]=el.value;});
+  r.fotos=fotos.slice(0,3);
+  data[k].reg=r;data[k].ts=Date.now();save(data);toast('✓ Registro guardado 💪');
+}
+
+// ══ SOCIAL ══
+function renderSocial(){
+  const k=today();const data=load();const s=data[k]?.social||{};
+  socS=new Set(s.conexiones||[]);
+  ['yo','marco','furia','familiar','trabajo','conocido','desconocido','tvredes'].forEach(c=>document.getElementById('soc-'+c)?.classList.toggle('on',socS.has(c)));
+  renderSocNotas();
+}
+function guardarSocial(){
+  const k=today();const data=load();if(!data[k])data[k]={};
+  const s=data[k].social||{};
+  s.conexiones=[...socS];
+  SOC_ITEMS.forEach(item=>{const el=document.getElementById('n-soc-'+item.id);if(el)s['n_'+item.id]=el.value;});
+  if(evalS.soc_pos)s.eval='pos';if(evalS.soc_neg)s.eval='neg';
+  data[k].social=s;save(data);toast('✓ Socialización guardada 🤝');
+}
+
+// ══ TAROT ══
+function renderTarot(){
+  const k=today();const data=load();const t=data[k]?.tarot||{};
+  document.getElementById('tarot-inp-carta').value=t.carta||'';
+  document.getElementById('tarot-inp-sig').value=t.significado||'';
+  document.getElementById('tarot-inp-oraculo').value=t.oraculo||'';
+  document.getElementById('tarot-inp-num-nota').value=t.numNota||'';
+  numsHoy=t.nums||[];renderNumChips();
+  if(t.carta){document.getElementById('tarot-nombre').textContent=t.carta;document.getElementById('tarot-sig').textContent=t.significado||'';}
+}
+function addNum(){
+  const inp=document.getElementById('num-inp');const v=inp.value.trim();if(!v)return;
+  numsHoy.push(v);inp.value='';renderNumChips();
+}
+function renderNumChips(){
+  document.getElementById('num-chips-display').innerHTML=numsHoy.map((n,i)=>`<span class="num-chip" onclick="numsHoy.splice(${i},1);renderNumChips()" style="cursor:pointer;">${n} ✕</span>`).join('');
+}
+function guardarTarot(){
+  const k=today();const data=load();if(!data[k])data[k]={};
+  const carta=document.getElementById('tarot-inp-carta').value;
+  const t={carta,significado:document.getElementById('tarot-inp-sig').value,oraculo:document.getElementById('tarot-inp-oraculo').value,nums:numsHoy,numNota:document.getElementById('tarot-inp-num-nota').value};
+  data[k].tarot=t;save(data);
+  if(carta){document.getElementById('tarot-nombre').textContent=carta;document.getElementById('tarot-sig').textContent=t.significado;}
+  toast('✓ Tarot & numerología guardados ✨');
+}
+
+// ══ CALENDARIO ══
+let cY=now().getFullYear(),cM=now().getMonth();
+function renderCal(){
+  document.getElementById('cal-tit').textContent=MESES[cM].charAt(0).toUpperCase()+MESES[cM].slice(1)+' '+cY;
+  const g=document.getElementById('cal-grid');g.innerHTML='';
+  ['L','M','X','J','V','S','D'].forEach(d=>{const el=document.createElement('div');el.className='cal-dow';el.textContent=d;g.appendChild(el);});
+  const first=new Date(cY,cM,1);let sd=first.getDay();sd=sd===0?6:sd-1;
+  for(let i=0;i<sd;i++){const el=document.createElement('div');el.className='cal-day emp';g.appendChild(el);}
+  const dim=new Date(cY,cM+1,0).getDate();const data=load();const todK=today();
+  for(let d=1;d<=dim;d++){
+    const k=`${cY}-${pz(cM+1)}-${pz(d)}`;const t=TURNOS[k]||'libre';const ex=EXAMENES.find(e=>e.f===k);const ent=data[k];
+    const el=document.createElement('div');el.className='cal-day';
+    if(ex)el.classList.add('exc');else if(t==='dia')el.classList.add('dc');else if(t==='noche')el.classList.add('nc');else el.classList.add('lc');
+    if(k===todK)el.classList.add('hoy');
+    el.innerHTML=`<span>${d}</span>`;
+    if(ent){
+      const dots=document.createElement('div');dots.className='cdots';
+      if(ent.diario){const dot=document.createElement('div');dot.className='cd cd-d';dots.appendChild(dot);}
+      if(ent.andrea){const dot=document.createElement('div');dot.className='cd cd-a';dots.appendChild(dot);}
+      if(ent.reg){const dot=document.createElement('div');dot.className='cd cd-r';dots.appendChild(dot);}
+      const evs=ent.eventos||[];
+      if(evs.length){const dot=document.createElement('div');dot.className='cd cd-ev';dots.appendChild(dot);}
+      const pend=evs.filter(e=>!e.done).length;
+      if(pend){const dot=document.createElement('div');dot.className='cd cd-p';dots.appendChild(dot);}
+      el.appendChild(dots);
+    }
+    el.onclick=()=>showDet(k,d,t,ex,ent);g.appendChild(el);
+  }
+  document.getElementById('dia-det').classList.remove('show');
+}
+function showDet(k,d,t,ex,ent){
+  const det=document.getElementById('dia-det');
+  const[y,mm,dd]=k.split('-');
+  document.getElementById('det-tit').textContent=`${parseInt(dd)} de ${MESES[parseInt(mm)-1]} ${y}`;
+  const tl=t==='dia'?'☀️ Turno día · 06:00-18:00':t==='noche'?'🌙 Turno noche · 18:00-06:00':'🌿 Día libre';
+  const EMO_EMOJI={triste:'😢',ansiosa:'😰',enfadada:'😠',alegre:'😊',tranquila:'😌',cansada:'😴',frustrada:'😤',neutral:'😐'};
+  const ANS_LBL={1:'Leve',2:'Moderada',3:'Notable',4:'Alta',5:'Muy alta'};
+
+  let html=`<div style="font-size:.73rem;color:var(--muted);padding:4px 0 10px;">${tl}</div>`;
+
+  if(ex) html+=`
+    <div class="det-bloque" style="background:#f3eeff;border-left:3px solid var(--purple);">
+      <div class="det-bloque-tit">🎓 Examen</div>
+      <div class="det-bloque-txt">${ex.a} · ${ex.h}</div>
+    </div>`;
+
+  if(!ent){
+    html+=`<div style="text-align:center;padding:20px;color:var(--muted);font-style:italic;font-size:.83rem;">Sin entradas registradas este día</div>`;
+    document.getElementById('det-body').innerHTML=html;
+    det.classList.add('show');det.scrollIntoView({behavior:'smooth',block:'nearest'});
+    return;
+  }
+
+  // ESTADOS EMOCIONALES DEL DÍA
+  if(ent.emos?.length){
+    html+=`<div class="det-bloque">
+      <div class="det-bloque-tit">💭 Estados del día</div>`;
+    ent.emos.forEach(e=>html+=`
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);">
+        <span style="font-size:1.1rem;">${EMO_EMOJI[e.emo]||'💭'}</span>
+        <div>
+          <span style="font-size:.82rem;font-weight:700;">${e.emo.charAt(0).toUpperCase()+e.emo.slice(1)}</span>
+          <span style="font-size:.72rem;color:var(--muted);margin-left:6px;">${e.hora}</span>
+          ${e.porque?`<div style="font-size:.78rem;color:#445;margin-top:2px;">${e.porque}</div>`:''}
+        </div>
+      </div>`);
+    html+=`</div>`;
+  }
+
+  // EVENTOS Y RECORDATORIOS
+  const evs=ent.eventos||[];
+  if(evs.length){
+    html+=`<div class="det-bloque">
+      <div class="det-bloque-tit">📅 Eventos y recordatorios</div>`;
+    evs.forEach(e=>html+=`
+      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);">
+        <span style="font-size:.9rem;color:${e.done?'var(--green)':'var(--red)'};">${e.done?'✅':'🔴'}</span>
+        <span style="font-size:.82rem;${e.done?'text-decoration:line-through;color:var(--muted);':''}">${e.txt}</span>
+        <span style="font-size:.68rem;color:var(--muted);margin-left:auto;">${e.tipo==='recuerda'?'💭':'📅'}</span>
+      </div>`);
+    html+=`</div>`;
+  }
+
+  // DIARIO
+  if(ent.diario){
+    html+=`<div class="det-bloque">
+      <div class="det-bloque-tit">📝 Diario</div>
+      <div style="font-size:.83rem;line-height:1.7;color:#334;white-space:pre-wrap;">${ent.diario}</div>
+    </div>`;
+  }
+
+  // ANDREA
+  if(ent.andrea){
+    html+=`<div class="det-bloque" style="background:#f8f4ff;border-left:3px solid var(--purple);">
+      <div class="det-bloque-tit">💜 Reflexión Andrea</div>
+      <div style="font-size:.83rem;line-height:1.7;color:#334;white-space:pre-wrap;">${ent.andrea}</div>
+    </div>`;
+  }
+
+  // REGISTRO
+  if(ent.reg){
+    const r=ent.reg;
+    const ANS_EMOJI={1:'😰',2:'😟',3:'😬',4:'😤',5:'🤯'};
+    html+=`<div class="det-bloque">
+      <div class="det-bloque-tit">📊 Registro del día</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">`;
+    if(r.peso) html+=`<div class="det-dato">⚖️ <strong>${r.peso}</strong> kg</div>`;
+    if(r.agua) html+=`<div class="det-dato">💧 <strong>${r.agua}</strong> vasos</div>`;
+    if(r.pasos) html+=`<div class="det-dato">🚶 <strong>${r.pasos}</strong> pasos</div>`;
+    if(r.hEst) html+=`<div class="det-dato">📚 <strong>${r.hEst}h</strong> estudio</div>`;
+    if(r.sueno) html+=`<div class="det-dato">🌙 <strong>${r.sueno}h</strong> sueño</div>`;
+    if(r.minEj) html+=`<div class="det-dato">🏃 <strong>${r.minEj}min</strong> ejercicio</div>`;
+    if(r.yn_past) html+=`<div class="det-dato">💊 Pastillas: <strong>${r.yn_past==='si'?'✓':'✗'}</strong></div>`;
+    if(r.st_dia) html+=`<div class="det-dato">⭐ Día: <strong>${r.st_dia}/5</strong></div>`;
+    if(r.ansiedad||r.ansiedad_num){
+      const aEmoji=r.ansiedad?ANS_EMOJI[r.ansiedad]:'';
+      const aNum=r.ansiedad_num?` ${r.ansiedad_num}/10`:'';
+      html+=`<div class="det-dato">😰 Ansiedad: <strong>${aEmoji}${aNum||ANS_LBL[r.ansiedad]||''}</strong></div>`;
+    }
+    if(r.panTotal) html+=`<div class="det-dato">📱 <strong>${r.panTotal}min</strong> pantalla</div>`;
+    html+=`</div>`;
+    if(r.n_mejor) html+=`<div style="margin-top:8px;font-size:.78rem;"><span style="color:var(--green);font-weight:700;">Lo mejor:</span> ${r.n_mejor}</div>`;
+    if(r.n_grat) html+=`<div style="margin-top:4px;font-size:.78rem;"><span style="color:var(--teal);font-weight:700;">Gratitud:</span> ${r.n_grat}</div>`;
+    if(r.n_mejorar) html+=`<div style="margin-top:4px;font-size:.78rem;"><span style="color:var(--amber);font-weight:700;">Mejoraría:</span> ${r.n_mejorar}</div>`;
+    if(r.chips?.length) html+=`<div style="margin-top:6px;font-size:.78rem;">🏃 ${r.chips.join(', ')}</div>`;
+    html+=`</div>`;
+  }
+
+  // WC
+  if(ent.wc?.length){
+    const motivoEmoji={necesidad:'✓',ansiedad:'⚡',prevision:'🕐',forzar:'⚠️'};
+    const tipoEmoji={pis:'💧',caca:'💩',ambos:'💧💩'};
+    html+=`<div class="det-bloque">
+      <div class="det-bloque-tit">🚽 Registro WC</div>`;
+    ent.wc.forEach(w=>html+=`
+      <div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:.78rem;align-items:flex-start;">
+        <span>${tipoEmoji[w.tipo]||'?'}</span>
+        <div>
+          <span style="font-weight:700;">${w.hora}</span>
+          ${w.motivo?`<span style="color:var(--muted);margin-left:5px;">${motivoEmoji[w.motivo]} ${w.motivo}</span>`:''}
+          ${w.ganas?`<span style="color:var(--muted);margin-left:5px;">${w.ganas==='si'?'con ganas':'sin ganas'}</span>`:''}
+          ${w.antes?`<div style="color:#556;margin-top:2px;">Antes: ${w.antes}</div>`:''}
+          ${w.durante?`<div style="color:#556;margin-top:1px;">Después: ${w.durante}</div>`:''}
+        </div>
+      </div>`);
+    html+=`</div>`;
+  }
+
+  // SOCIAL
+  if(ent.social?.conexiones?.length){
+    const SOC_EMOJI={yo:'🪞',marco:'💑',furia:'🐕',familiar:'👨‍👩‍👧',trabajo:'👷',conocido:'👋',desconocido:'🌍',tvredes:'📺'};
+    html+=`<div class="det-bloque">
+      <div class="det-bloque-tit">🤝 Socialización</div>`;
+    ent.social.conexiones.forEach(c=>{
+      const nota=ent.social['n_'+c];const ev=ent.social['eval_'+c];
+      html+=`<div style="display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid var(--line);">
+        <span>${SOC_EMOJI[c]||'👤'}</span>
+        <div style="flex:1;font-size:.8rem;">
+          <span style="font-weight:700;">${c.charAt(0).toUpperCase()+c.slice(1)}</span>
+          ${ev?`<span style="margin-left:5px;">${ev==='pos'?'😊':'😟'}</span>`:''}
+          ${nota?`<div style="color:#556;margin-top:2px;">${nota}</div>`:''}
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // TAROT
+  if(ent.tarot?.carta||ent.tarot?.nums?.length){
+    html+=`<div class="det-bloque" style="background:#1a0533;color:#e0d0ff;border-left:3px solid var(--purple);">
+      <div class="det-bloque-tit" style="color:#c4b5fd;">🃏 Tarot & Numerología</div>`;
+    if(ent.tarot.carta) html+=`<div style="font-size:.9rem;font-weight:700;margin-bottom:4px;">${ent.tarot.carta}</div>`;
+    if(ent.tarot.significado) html+=`<div style="font-size:.78rem;color:#c4b5fd;line-height:1.6;">${ent.tarot.significado}</div>`;
+    if(ent.tarot.nums?.length) html+=`<div style="margin-top:6px;font-size:.8rem;">🔢 ${ent.tarot.nums.join(' · ')}</div>`;
+    if(ent.tarot.numNota) html+=`<div style="font-size:.75rem;color:#a99de0;margin-top:4px;">${ent.tarot.numNota}</div>`;
+    html+=`</div>`;
+  }
+
+  document.getElementById('det-body').innerHTML=html;
+  det.classList.add('show');det.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function verAndrea(k){goTo('andrea',document.querySelector('.nb2:nth-child(7)'));setTimeout(()=>{andTab('diario');setTimeout(()=>{const el=document.getElementById('and-'+k);if(el)el.scrollIntoView({behavior:'smooth'});},150);},300);}
+function movMes(d){cM+=d;if(cM>11){cM=0;cY++;}if(cM<0){cM=11;cY--;}renderCal();}
+
+// ══ ANDREA HISTORIAL ══
+function renderAndreaDiario(){
+  const data=load();const lista=document.getElementById('and-list');
+  if(!lista) return;
+  const ents=Object.entries(data).filter(([k,v])=>v.andrea||v.diario).sort((a,b)=>b[0].localeCompare(a[0]));
+  if(!ents.length){lista.innerHTML='<div class="empty"><div class="empty-i">💜</div>Sin reflexiones aún</div>';return;}
+  const emj={1:'😔',2:'😕',3:'😐',4:'🙂',5:'😊'};
+  lista.innerHTML=ents.map(([k,v])=>{
+    const[y,m,d]=k.split('-');
+    const texto=v.andrea||v.diario||'';
+    return`<div class="and-item" id="and-${k}" onclick="this.querySelector('.and-full').classList.toggle('show')">
+      <div class="and-fecha"><span>${parseInt(d)} ${MESES[parseInt(m)-1]} ${y}</span>${v.humor?`<span>${emj[v.humor]}</span>`:''}</div>
+      <div class="and-txt">${texto.slice(0,80)}${texto.length>80?'…':''}</div>
+      <div class="and-full">
+        ${v.andrea?`<div class="and-txt"><strong>Deberes Andrea:</strong><br>${v.andrea}</div>`:''}
+        ${v.diario?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:.78rem;color:#445;">📝 ${v.diario}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAndrea(){
+  // Solo renderiza tareas al entrar, sin tocar los tabs
+  renderTareasAndrea();
+}
+
+// ══ IA ══
+const FRASES_HOY=FRASES[new Date().getDate()%FRASES.length];
+function renderIA(){
+  document.getElementById('frase-q').textContent='"'+FRASES_HOY.q+'"';
+  document.getElementById('frase-autor').textContent='— '+FRASES_HOY.a;
+}
+function selInf(p){infPeriodo=p;document.querySelectorAll('.inf-opt').forEach(b=>b.classList.remove('on'));document.getElementById('inf-'+p).classList.add('on');}
+
+function generarInforme(){
+  const data=load();const n=now();
+  let dias=[];
+  if(infPeriodo==='dia'){dias=[today()];}
+  else if(infPeriodo==='sem'){for(let i=6;i>=0;i--){const d=new Date(n);d.setDate(n.getDate()-i);dias.push(key(d));}}
+  else{for(let i=0;i<n.getDate();i++){const d=new Date(n);d.setDate(n.getDate()-i);dias.push(key(d));}}
+  
+  let resumen='';
+  dias.forEach(k=>{
+    const e=data[k];if(!e)return;
+    const[y,m,d]=k.split('-');
+    resumen+='\n--- '+parseInt(d)+' '+MESES[parseInt(m)-1]+' ---\n';
+    if(e.humor)resumen+=`Estado: ${['','Mal','Regular','Neutro','Bien','Genial'][e.humor]}\n`;
+    if(e.diario)resumen+=`Diario: ${e.diario.slice(0,200)}\n`;
+    if(e.andrea)resumen+=`Andrea: ${e.andrea.slice(0,200)}\n`;
+    if(e.reg){const r=e.reg;if(r.agua)resumen+=`Agua: ${r.agua} vasos\n`;if(r.pasos)resumen+=`Pasos: ${r.pasos}\n`;if(r.hEst)resumen+=`Estudio: ${r.hEst}h\n`;if(r.st_dia)resumen+=`Valoración: ${r.st_dia}/5\n`;if(r.n_mejor)resumen+=`Lo mejor: ${r.n_mejor}\n`;if(r.n_grat)resumen+=`Gratitud: ${r.n_grat}\n`;}
+    if(e.social?.conexiones?.length)resumen+=`Socialización: ${e.social.conexiones.join(', ')}\n`;
+    if(e.tarot?.carta)resumen+=`Carta: ${e.tarot.carta}\n`;
+    if(e.eventos?.length)resumen+=`Eventos: ${e.eventos.map(ev=>(ev.done?'✓ ':'● ')+ev.txt).join(', ')}\n`;
+  });
+
+  const periodo=infPeriodo==='dia'?'de hoy':infPeriodo==='sem'?'de esta semana':'de este mes';
+  document.getElementById('inf-result').textContent='Generando tu informe…';
+  
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-6',max_tokens:1000,
+      system:`Eres la guía y terapeuta personal de Rebeca, una mujer española que trabaja como vigilante de seguridad en Torraspapel (turnos de 12h día o noche), estudia Grado en Derecho en Calatayud, va a terapia con Andrea su psicóloga, tiene una perra llamada Furia, está en pareja con Marco, le encantan el tarot y la numerología, y está creando hábitos saludables. Habla siempre en femenino, en español, con calidez, empatía y motivación. Da consejos prácticos y específicos. Mezcla perspectiva terapéutica con coaching de hábitos y un toque espiritual cuando sea relevante.`,
+      messages:[{role:'user',content:`Analiza mis datos ${periodo} y dame un informe personalizado con: reflexión emocional, logros destacados, áreas de mejora, y un plan concreto para los próximos días. Mis datos:\n${resumen||'Sin datos registrados aún para este período.'}`}]
+    })
+  }).then(r=>r.json()).then(d=>{
+    const txt=d.content?.[0]?.text||'Error generando el informe. Inténtalo de nuevo.';
+    document.getElementById('inf-result').textContent=txt;
+  }).catch(()=>document.getElementById('inf-result').textContent='Error de conexión. Comprueba tu conexión a internet.');
+}
+
+function sendChat(){
+  const inp=document.getElementById('chat-inp');const txt=inp.value.trim();if(!txt)return;
+  inp.value='';document.getElementById('chat-send').disabled=true;
+  const msgs=document.getElementById('chat-msgs');
+  msgs.innerHTML+=`<div class="msg user"><div class="msg-avatar">👤</div><div class="msg-bubble">${txt}</div></div>`;
+  msgs.innerHTML+=`<div class="msg ia" id="msg-typing"><div class="msg-avatar">🌱</div><div class="msg-bubble" style="color:var(--muted);font-style:italic;">Escribiendo…</div></div>`;
+  msgs.scrollTop=msgs.scrollHeight;
+  chatHist.push({role:'user',content:txt});
+  
+  const data=load();const k=today();const hoy=data[k];
+  let ctx='';if(hoy){if(hoy.humor)ctx+=`Mi estado hoy: ${['','Mal','Regular','Neutro','Bien','Genial'][hoy.humor]}. `;if(hoy.andrea)ctx+=`Mi reflexión de Andrea: ${hoy.andrea.slice(0,150)}. `;}
+
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-6',max_tokens:500,
+      system:`Eres la guía y compañera de reflexión de Rebeca. Contexto de hoy: ${ctx||'Sin datos de hoy aún.'} Sé empática, cálida, directa. Respuestas cortas (máx 4 frases) salvo que pida más. Español, femenino.`,
+      messages:chatHist.slice(-10)
+    })
+  }).then(r=>r.json()).then(d=>{
+    const resp=d.content?.[0]?.text||'No pude responder, inténtalo de nuevo.';
+    chatHist.push({role:'assistant',content:resp});
+    document.getElementById('msg-typing').outerHTML=`<div class="msg ia"><div class="msg-avatar">🌱</div><div class="msg-bubble">${resp}</div></div>`;
+    msgs.scrollTop=msgs.scrollHeight;
+    document.getElementById('chat-send').disabled=false;
+  }).catch(()=>{document.getElementById('msg-typing').outerHTML=`<div class="msg ia"><div class="msg-avatar">🌱</div><div class="msg-bubble" style="color:var(--red)">Error de conexión 😔</div></div>`;document.getElementById('chat-send').disabled=false;});
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const ci=document.getElementById('chat-inp');
+  if(ci)ci.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}});
+});
+
+// ══ STATS ══
+function renderStats(){
+  const data=load();const n=now();
+  const lunes=new Date(n);lunes.setDate(n.getDate()-((n.getDay()+6)%7));
+  let sd=0,sa=0,sp=0;const l7=[];
+  for(let i=0;i<7;i++){const d=new Date(lunes);d.setDate(lunes.getDate()+i);const k=key(d);l7.push(k);if(data[k]){if(data[k].diario)sd++;if(data[k].andrea)sa++;if(data[k].reg?.yn_past==='si')sp++;}}
+  let racha=0;const ch=new Date(n);
+  while(racha<365){const k=key(ch);if(data[k]&&(data[k].diario||data[k].andrea||data[k].reg)){racha++;ch.setDate(ch.getDate()-1);}else break;}
+  document.getElementById('st-d').textContent=sd;document.getElementById('st-a').textContent=sa;document.getElementById('st-p').textContent=sp;document.getElementById('st-r').textContent=racha;
+  const trends=[{l:'💧 Agua',c:'agua',col:'#0ea5e9',max:12},{l:'🚶 Pasos',c:'pasos',col:'#10b981',max:10000},{l:'📱 Pantalla',c:'panTotal',col:'#ef4444',max:240},{l:'📚 Estudio',c:'hEst',col:'#8b5cf6',max:8},{l:'🌙 Sueño',c:'sueno',col:'#3b82f6',max:10}];
+  document.getElementById('trends').innerHTML=trends.map(tr=>{
+    const vals=l7.map(k=>parseFloat(data[k]?.reg?.[tr.c])||0);
+    const bars=vals.map((v,i)=>{const pct=Math.min(100,Math.round((v/tr.max)*100));const isT=l7[i]===today();return`<div class="trbar" style="height:${Math.max(pct,4)}%;background:${isT?tr.col:tr.col+'88'}" title="${v}"></div>`;}).join('');
+    const lv=vals[6]||0;const u=tr.c==='hEst'||tr.c==='sueno'?'h':tr.c==='pasos'?'':tr.c==='panTotal'?'m':'v';
+    return`<div class="tr3"><span class="trl">${tr.l}</span><div class="trb">${bars}</div><span class="trv">${lv}${u}</span></div>`;
+  }).join('');
+  const humors={1:0,2:0,3:0,4:0,5:0};const mk=`${n.getFullYear()}-${pz(n.getMonth()+1)}`;
+  Object.entries(data).forEach(([k,v])=>{if(k.startsWith(mk)&&v.humor)humors[v.humor]++;});
+  const mxH=Math.max(...Object.values(humors),1);const emj={1:'😔',2:'😕',3:'😐',4:'🙂',5:'😊'};
+  document.getElementById('humor-bars').innerHTML=[5,4,3,2,1].map(v=>`<div class="hbr"><span class="hbl">${emj[v]}</span><div class="hbt"><div class="hbf" style="width:${(humors[v]/mxH)*100}%"></div></div><span class="hbc">${humors[v]}</span></div>`).join('');
+  const todK=today();
+  document.getElementById('ex-lista').innerHTML=EXAMENES.map(e=>{
+    const past=e.f<todK;const[y,m,d]=e.f.split('-');const diff=Math.ceil((new Date(e.f)-n)/86400000);const fal=past?'Pasado':diff===0?'¡HOY!':diff===1?'Mañana':`${diff}d`;
+    return`<div class="ex-i${past?' past':''}"><div class="ex-d2"><div class="ex-dd">${parseInt(d)}</div><div class="ex-mm">${MESC[parseInt(m)-1]}</div></div><div class="ex-inf"><div class="ex-a">${e.a}</div><div class="ex-hl">${e.h} · ${e.l}</div></div><div class="ex-f">${fal}</div></div>`;
+  }).join('');
+}
+
+// ══ EXPORTAR / IMPORTAR ══
+function exportarDatos(){
+  const data = load();
+  const total = Object.keys(data).length;
+  if(!total){ toast('No hay datos que exportar'); return; }
+  
+  const exportObj = {
+    version: 'rebeca_v1',
+    exportado: new Date().toISOString(),
+    datos: data
+  };
+  
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const fecha = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `rebeca-datos-${fecha}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  
+  document.getElementById('backup-estado').textContent = `✓ Exportados ${total} días de datos`;
+  toast('✓ Datos exportados correctamente');
+}
+
+function importarDatos(inp){
+  const file = inp.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const obj = JSON.parse(e.target.result);
+      let datos;
+      // Formato nuevo con wrapper
+      if(obj.version && obj.datos) datos = obj.datos;
+      // Formato viejo directo
+      else datos = obj;
+      
+      // Validar que parece datos de Rebeca (fechas como claves)
+      const claves = Object.keys(datos);
+      const pareceFechas = claves.some(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+      if(!pareceFechas){ toast('⚠️ El archivo no parece válido'); return; }
+      
+      // Fusionar con datos existentes (no sobreescribir, añadir)
+      const existentes = load();
+      const fusionados = Object.assign({}, datos, existentes); // los existentes tienen prioridad
+      save(fusionados);
+      
+      const total = Object.keys(fusionados).length;
+      document.getElementById('backup-estado').textContent = `✓ Importados — ${total} días en total`;
+      toast(`✓ Datos importados: ${total} días`);
+      renderStats();
+    } catch(err){
+      toast('⚠️ Error al leer el archivo');
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+  inp.value='';
+}
+
+// ══ ANDREA COMPLETO ══
+let andTipoSel = null;
+let andInfPeriodo = 'sem';
+let andGrabando = false;
+let andMediaRecorder = null;
+let andAudioChunks = [];
+let andTareaAbierta = null; // id de la tarea expandida
+
+function andTab(tab){
+  ['tareas','diario','informe'].forEach(t=>{
+    document.getElementById('and-'+t).style.display = t===tab?'block':'none';
+    document.getElementById('atab-'+t).classList.toggle('on', t===tab);
+  });
+  if(tab==='diario') renderAndreaDiario();
+  if(tab==='tareas') renderTareasAndrea();
+}
+
+function chipAndTipo(t){
+  andTipoSel = andTipoSel===t ? null : t;
+  document.querySelectorAll('#and-tipo-chips .chip').forEach(b=>b.classList.remove('on'));
+  if(andTipoSel) document.getElementById('atipo-'+andTipoSel)?.classList.add('on');
+}
+
+function crearTareaAndrea(){
+  const titulo = document.getElementById('and-tarea-titulo').value.trim();
+  if(!titulo){ toast('Escribe un título para la tarea'); return; }
+  const data = load();
+  if(!data._andrea) data._andrea = {};
+  if(!data._andrea.tareas) data._andrea.tareas = [];
+  const tarea = {
+    id: Date.now(),
+    titulo,
+    tipo: andTipoSel,
+    desc: document.getElementById('and-tarea-desc').value,
+    creada: new Date().toISOString(),
+    completada: false,
+    comentarios: [],
+    medias: []
+  };
+  data._andrea.tareas.unshift(tarea);
+  save(data);
+  document.getElementById('and-tarea-titulo').value='';
+  document.getElementById('and-tarea-desc').value='';
+  andTipoSel=null;
+  document.querySelectorAll('#and-tipo-chips .chip').forEach(b=>b.classList.remove('on'));
+  renderTareasAndrea();
+  toast('✓ Tarea creada 💜');
+}
+
+const TIPO_EMOJI={yoga:'🧘',meditacion:'🌬️',carta:'✍️',respiracion:'💨',rodillo:'🔵',reflexion:'💭',ejercicio:'🏃',otro:'➕'};
+
+function renderTareasAndrea(){
+  const data = load();
+  const tareas = data._andrea?.tareas || [];
+  const lista = document.getElementById('and-tareas-lista');
+  if(!tareas.length){
+    lista.innerHTML='<div class="empty"><div class="empty-i">💜</div>Aún no hay tareas.<br>Añade la primera arriba.</div>';
+    return;
+  }
+  lista.innerHTML = tareas.map((t,i)=>{
+    const fecha = new Date(t.creada).toLocaleDateString('es-ES',{day:'numeric',month:'short'});
+    const isOpen = andTareaAbierta === t.id;
+    return `
+    <div class="and-tarea ${t.completada?'completada':''}" id="tarea-${t.id}">
+      <div class="and-tarea-head" onclick="toggleTarea(${t.id})">
+        <div class="and-tarea-check ${t.completada?'done':''}" onclick="event.stopPropagation();toggleCompletada(${t.id})">${t.completada?'✓':''}</div>
+        <div class="and-tarea-info">
+          <div class="and-tarea-titulo">${t.titulo}</div>
+          <div class="and-tarea-meta">
+            ${t.tipo?`<span class="and-tarea-tipo">${TIPO_EMOJI[t.tipo]||'•'} ${t.tipo}</span>`:''}
+            <span>${fecha}</span>
+            ${t.comentarios?.length?`<span>💬 ${t.comentarios.length}</span>`:''}
+            ${t.completada?'<span style="color:var(--green);">✓ Hecha</span>':''}
+          </div>
+        </div>
+        <span style="color:var(--muted);font-size:.8rem;flex-shrink:0;">${isOpen?'▲':'▼'}</span>
+      </div>
+      ${isOpen ? `
+      <div class="and-tarea-body">
+        ${t.desc?`<div style="font-size:.8rem;color:var(--muted);margin-bottom:10px;padding:8px;background:var(--soft);border-radius:7px;">${t.desc}</div>`:''}
+
+        <!-- Comentarios previos -->
+        <div id="coms-${t.id}">
+          ${(t.comentarios||[]).map((c,ci)=>`
+            <div class="and-comentario">
+              <div class="and-comentario-hora">${c.fecha} · ${c.hora}${c.tipo?' · '+c.tipo:''}</div>
+              ${c.texto?`<div>${c.texto}</div>`:''}
+              ${c.audio?`<audio controls src="${c.audio}" style="width:100%;margin-top:4px;"></audio>`:''}
+              ${c.imagen?`<img src="${c.imagen}" style="width:100%;border-radius:6px;margin-top:4px;">`:''}
+            </div>`).join('')}
+        </div>
+
+        <!-- NUEVA NOTA DE VOZ -->
+        <button class="voz-btn" id="voz-btn-${t.id}" onclick="toggleGrabacion(${t.id})">
+          <span class="voz-icon">🎙️</span>
+          <span id="voz-lbl-${t.id}">Grabar nota de voz</span>
+        </button>
+        <div id="voz-preview-${t.id}" style="display:none;margin-bottom:8px;">
+          <audio id="voz-audio-${t.id}" controls style="width:100%;"></audio>
+          <div style="display:flex;gap:6px;margin-top:5px;">
+            <button onclick="guardarAudio(${t.id})" style="flex:1;padding:7px;background:#7c3aed;color:#fff;border:none;border-radius:7px;font-family:'Inter',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer;">💾 Guardar audio</button>
+            <button onclick="descartarAudio(${t.id})" style="flex:1;padding:7px;background:var(--soft);border:1px solid var(--line);border-radius:7px;font-family:'Inter',sans-serif;font-size:.75rem;cursor:pointer;">✕ Descartar</button>
+          </div>
+        </div>
+
+        <!-- ADJUNTAR FOTO -->
+        <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px dashed var(--line);border-radius:9px;cursor:pointer;font-size:.8rem;color:var(--muted);margin-bottom:8px;background:var(--soft);">
+          📎 Adjuntar foto / imagen
+          <input type="file" accept="image/*" style="display:none;" onchange="adjuntarFotoTarea(${t.id},this)">
+        </label>
+
+        <!-- ESCRIBIR COMENTARIO -->
+        <textarea id="com-txt-${t.id}" rows="3" placeholder="Escribe aquí — cómo te ha ido, cómo te has sentido, lo que quieras..."></textarea>
+        <button class="btn" style="margin-top:6px;" onclick="guardarComentario(${t.id})">Guardar nota</button>
+        <button onclick="eliminarTarea(${t.id})" style="width:100%;margin-top:6px;padding:8px;background:none;border:1px solid #fee2e2;color:var(--red);border-radius:8px;font-family:'Inter',sans-serif;font-size:.75rem;cursor:pointer;">🗑 Eliminar tarea</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleTarea(id){
+  andTareaAbierta = andTareaAbierta===id ? null : id;
+  renderTareasAndrea();
+}
+
+function toggleCompletada(id){
+  const data=load();
+  const t=data._andrea?.tareas?.find(t=>t.id===id);
+  if(t){ t.completada=!t.completada; save(data); renderTareasAndrea(); }
+}
+
+function guardarComentario(tareaId){
+  const txt = document.getElementById('com-txt-'+tareaId)?.value?.trim();
+  if(!txt){ toast('Escribe algo primero'); return; }
+  const data=load();
+  const t=data._andrea?.tareas?.find(t=>t.id===tareaId);
+  if(!t) return;
+  if(!t.comentarios) t.comentarios=[];
+  const n=new Date();
+  t.comentarios.push({
+    texto:txt,
+    fecha:n.toLocaleDateString('es-ES',{day:'numeric',month:'short'}),
+    hora:n.toTimeString().slice(0,5)
+  });
+  save(data);
+  document.getElementById('com-txt-'+tareaId).value='';
+  renderTareasAndrea();
+  toast('✓ Nota guardada 💜');
+}
+
+function adjuntarFotoTarea(tareaId, inp){
+  const file=inp.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const data=load();
+    const t=data._andrea?.tareas?.find(t=>t.id===tareaId);
+    if(!t) return;
+    if(!t.comentarios) t.comentarios=[];
+    const n=new Date();
+    t.comentarios.push({
+      imagen: e.target.result,
+      fecha:n.toLocaleDateString('es-ES',{day:'numeric',month:'short'}),
+      hora:n.toTimeString().slice(0,5),
+      tipo:'foto'
+    });
+    save(data); renderTareasAndrea(); toast('✓ Foto adjuntada');
+  };
+  r.readAsDataURL(file);
+  inp.value='';
+}
+
+function eliminarTarea(id){
+  if(!confirm('¿Eliminar esta tarea y todas sus notas?')) return;
+  const data=load();
+  if(data._andrea?.tareas){
+    data._andrea.tareas=data._andrea.tareas.filter(t=>t.id!==id);
+    save(data); andTareaAbierta=null; renderTareasAndrea();
+    toast('Tarea eliminada');
+  }
+}
+
+// GRABACIÓN DE VOZ
+let andAudioBlob = null;
+let andAudioTareaId = null;
+
+async function toggleGrabacion(tareaId){
+  const btn=document.getElementById('voz-btn-'+tareaId);
+  const lbl=document.getElementById('voz-lbl-'+tareaId);
+  if(!andGrabando){
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      andMediaRecorder=new MediaRecorder(stream);
+      andAudioChunks=[];
+      andAudioTareaId=tareaId;
+      andMediaRecorder.ondataavailable=e=>andAudioChunks.push(e.data);
+      andMediaRecorder.onstop=()=>{
+        andAudioBlob=new Blob(andAudioChunks,{type:'audio/webm'});
+        const url=URL.createObjectURL(andAudioBlob);
+        const audio=document.getElementById('voz-audio-'+tareaId);
+        if(audio){ audio.src=url; document.getElementById('voz-preview-'+tareaId).style.display='block'; }
+        stream.getTracks().forEach(t=>t.stop());
+      };
+      andMediaRecorder.start();
+      andGrabando=true;
+      btn.classList.add('grabando');
+      lbl.textContent='⏹ Parar grabación';
+    }catch(e){ toast('⚠️ Activa el micrófono en el navegador'); }
+  } else {
+    andMediaRecorder?.stop();
+    andGrabando=false;
+    btn.classList.remove('grabando');
+    lbl.textContent='🎙️ Grabar nota de voz';
+  }
+}
+
+function guardarAudio(tareaId){
+  if(!andAudioBlob){ toast('No hay audio grabado'); return; }
+  const r=new FileReader();
+  r.onload=e=>{
+    const data=load();
+    const t=data._andrea?.tareas?.find(t=>t.id===tareaId);
+    if(!t) return;
+    if(!t.comentarios) t.comentarios=[];
+    const n=new Date();
+    t.comentarios.push({
+      audio: e.target.result,
+      fecha:n.toLocaleDateString('es-ES',{day:'numeric',month:'short'}),
+      hora:n.toTimeString().slice(0,5),
+      tipo:'voz 🎙️'
+    });
+    save(data); andAudioBlob=null;
+    document.getElementById('voz-preview-'+tareaId).style.display='none';
+    renderTareasAndrea(); toast('✓ Audio guardado 🎙️');
+  };
+  r.readAsDataURL(andAudioBlob);
+}
+
+function descartarAudio(tareaId){
+  andAudioBlob=null;
+  document.getElementById('voz-preview-'+tareaId).style.display='none';
+}
+
+// INFORME PARA ANDREA
+function selAndInf(p){
+  andInfPeriodo=p;
+  ['sem','mes','todo'].forEach(x=>document.getElementById('ainf-'+x)?.classList.toggle('on',x===p));
+}
+
+function generarInformeAndrea(){
+  const data=load(); const n=new Date();
+  let dias=[];
+  if(andInfPeriodo==='sem'){
+    for(let i=6;i>=0;i--){const d=new Date(n);d.setDate(n.getDate()-i);dias.push(key(d));}
+  } else if(andInfPeriodo==='mes'){
+    for(let i=0;i<n.getDate();i++){const d=new Date(n);d.setDate(n.getDate()-i);dias.push(key(d));}
+  } else {
+    dias=Object.keys(data).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)).sort();
+  }
+
+  const sep = '='.repeat(40);
+  const fechaStr = n.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  let lineas = ['INFORME PARA ANDREA', 'Generado el ' + fechaStr, sep, ''];
+
+  if(document.getElementById('inf-tareas')?.checked){
+    const tareas=data._andrea?.tareas||[];
+    if(tareas.length){
+      lineas.push('TAREAS DE TERAPIA:');
+      tareas.forEach(t=>{
+        lineas.push('');
+        lineas.push('• ' + t.titulo + ' ' + (t.completada?'[COMPLETADA ✓]':'[PENDIENTE]'));
+        if(t.tipo) lineas.push('  Tipo: ' + t.tipo);
+        if(t.comentarios?.length){
+          t.comentarios.filter(c=>c.texto).forEach(c=>{
+            lineas.push('  [' + c.fecha + ' ' + c.hora + ']: ' + c.texto);
+          });
+        }
+      });
+      lineas.push('');
+    }
+  }
+
+  if(document.getElementById('inf-emo')?.checked){
+    lineas.push('ESTADO EMOCIONAL:');
+    const emj={1:'Mal',2:'Regular',3:'Neutro',4:'Bien',5:'Genial'};
+    const EMO_N={triste:'Triste',ansiosa:'Ansiosa',enfadada:'Enfadada',alegre:'Alegre',tranquila:'Tranquila',cansada:'Cansada',frustrada:'Frustrada',neutral:'Neutral'};
+    dias.forEach(k=>{
+      const e=data[k]; if(!e) return;
+      const[y,m,d]=k.split('-');
+      const fecha = parseInt(d)+'/'+parseInt(m);
+      const bits=[];
+      if(e.humor) bits.push('humor: ' + emj[e.humor]);
+      if(e.emos?.length) bits.push(e.emos.map(em=>em.hora+' '+( EMO_N[em.emo]||em.emo)+(em.porque?' ('+em.porque+')':'')).join(', '));
+      if(bits.length) lineas.push('  ' + fecha + ': ' + bits.join(' | '));
+    });
+    lineas.push('');
+  }
+
+  if(document.getElementById('inf-diario')?.checked){
+    lineas.push('REFLEXIONES Y DIARIO:');
+    dias.forEach(k=>{
+      const e=data[k]; if(!e) return;
+      const[y,m,d]=k.split('-');
+      if(e.andrea) lineas.push('  ' + parseInt(d)+'/'+parseInt(m) + ': ' + e.andrea);
+      else if(e.diario) lineas.push('  ' + parseInt(d)+'/'+parseInt(m) + ' (diario): ' + e.diario.slice(0,200));
+    });
+    lineas.push('');
+  }
+
+  if(document.getElementById('inf-wc')?.checked){
+    lineas.push('REGISTRO WC (ansiedad/motivos):');
+    dias.forEach(k=>{
+      const e=data[k]; if(!e?.wc?.length) return;
+      const[y,m,d]=k.split('-');
+      const ansiedadWC=e.wc.filter(w=>w.motivo==='ansiedad'||w.motivo==='forzar'||w.motivo==='prevision');
+      if(ansiedadWC.length) lineas.push('  ' + parseInt(d)+'/'+parseInt(m) + ': ' + ansiedadWC.length + ' veces por ansiedad/previsión/forzar');
+    });
+    lineas.push('');
+  }
+
+  if(document.getElementById('inf-habitos')?.checked){
+    lineas.push('HÁBITOS:');
+    dias.forEach(k=>{
+      const e=data[k]; if(!e?.reg) return;
+      const r=e.reg; const[y,m,d]=k.split('-');
+      const bits=[];
+      if(r.sueno) bits.push('sueño ' + r.sueno + 'h');
+      if(r.yn_past) bits.push('pastillas ' + (r.yn_past==='si'?'✓':'✗'));
+      if(r.yn_ej==='si'||r.chips?.length) bits.push('ejercicio ' + (r.chips?.join(',')||''));
+      if(r.agua) bits.push('agua ' + r.agua + 'v');
+      if(bits.length) lineas.push('  ' + parseInt(d)+'/'+parseInt(m) + ': ' + bits.join(' | '));
+    });
+    lineas.push('');
+  }
+
+  if(document.getElementById('inf-social')?.checked){
+    lineas.push('SOCIALIZACIÓN:');
+    dias.forEach(k=>{
+      const e=data[k]; if(!e?.social?.conexiones?.length) return;
+      const[y,m,d]=k.split('-');
+      lineas.push('  ' + parseInt(d)+'/'+parseInt(m) + ': ' + e.social.conexiones.join(', '));
+      if(e.social.n_marco) lineas.push('    Marco: ' + e.social.n_marco);
+    });
+    lineas.push('');
+  }
+
+  const resumenTexto = lineas.join('\n');
+
+  document.getElementById('and-inf-resultado').style.display='block';
+  const textoEl=document.getElementById('and-inf-texto');
+  textoEl.textContent='Generando con IA…';
+
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-6', max_tokens:1200,
+      system:'Eres asistente de Rebeca que prepara un resumen estructurado para su psicóloga Andrea. Rebeca es una mujer española, vigilante de seguridad con turnos de 12h, estudia Derecho, tiene una perra Furia y pareja Marco. Redacta el informe en primera persona (como si lo escribiera Rebeca), en español, de forma clara, honesta y terapéutica. Incluye: resumen emocional, avances en las tareas, patrones que observas, y preguntas o temas que podría tratar con Andrea.',
+      messages:[{role:'user',content:'Transforma estos datos en un informe terapéutico para llevar a mi próxima sesión con Andrea:\n\n'+resumenTexto}]
+    })
+  }).then(r=>r.json()).then(d=>{
+    const txt=d.content?.[0]?.text||resumenTexto;
+    textoEl.textContent=txt;
+    textoEl.dataset.raw=txt;
+  }).catch(()=>{ textoEl.textContent=resumenTexto; textoEl.dataset.raw=resumenTexto; });
+}
+
+function copiarInforme(){
+  const txt=document.getElementById('and-inf-texto')?.dataset?.raw||document.getElementById('and-inf-texto')?.textContent;
+  if(!txt) return;
+  navigator.clipboard?.writeText(txt).then(()=>toast('✓ Copiado al portapapeles')).catch(()=>toast('Selecciona el texto manualmente'));
+}
+
+function compartirInforme(){
+  const txt=document.getElementById('and-inf-texto')?.dataset?.raw||document.getElementById('and-inf-texto')?.textContent;
+  if(!txt) return;
+  const email = document.getElementById('andrea-email')?.value;
+  if(email){
+    const asunto = encodeURIComponent('Mi informe de seguimiento - ' + new Date().toLocaleDateString('es-ES'));
+    const cuerpo = encodeURIComponent(txt);
+    window.open('mailto:'+email+'?subject='+asunto+'&body='+cuerpo);
+  } else if(navigator.share){
+    navigator.share({title:'Informe para Andrea',text:txt});
+  } else {
+    copiarInforme();
+  }
+}
+
+function imprimirInforme(){
+  const txt=document.getElementById('and-inf-texto')?.dataset?.raw||document.getElementById('and-inf-texto')?.textContent;
+  if(!txt) return;
+  const w=window.open('','_blank');
+  w.document.write(`<html><head><title>Informe para Andrea</title>
+    <style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;color:#222;font-size:14px;}
+    h1{color:#7c3aed;border-bottom:2px solid #7c3aed;padding-bottom:8px;}
+    pre{white-space:pre-wrap;font-family:inherit;}</style></head>
+    <body><h1>Informe para Andrea 💜</h1><pre>${txt}</pre></body></html>`);
+  w.document.close(); w.print();
+}
+
+// ══ FOTO GRID ══
+function renderFotoGrid(){
+  const grid = document.getElementById('foto-grid');
+  if(!grid) return;
+  grid.innerHTML = fotos.map((s,i)=>`
+    <div style="position:relative;aspect-ratio:1;border-radius:7px;overflow:hidden;background:#dde3ea;">
+      <img src="${s}" style="width:100%;height:100%;object-fit:cover;display:block;">
+      <button onclick="fotos.splice(${i},1);renderFotoGrid()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>`).join('');
+}
+
+// ══ MÚSICA ESPIRITUAL ══
+// ══ MÚSICA — Web Audio API (no necesita internet) ══
+const TRACKS = [
+  {name:'🎵 Frecuencia 432Hz · Relajación', freq:432, type:'sine', mod:0.5},
+  {name:'🎵 Frecuencia 528Hz · Amor', freq:528, type:'sine', mod:0.3},
+  {name:'🎵 Cuencos tibetanos · 396Hz', freq:396, type:'sine', mod:0.8},
+  {name:'🎵 Om · 136Hz · Tierra', freq:136, type:'sine', mod:0.6},
+  {name:'🎵 Frecuencia 741Hz · Intuición', freq:741, type:'sine', mod:0.4},
+  {name:'🎵 Lluvia binaural · Delta', freq:2, type:'sine', mod:1},
+];
+let trackIdx = 0;
+let musicPlaying = false;
+let audioCtx = null;
+let audioNodes = [];
+let gainNode = null;
+
+function initAudio(){
+  if(audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  gainNode = audioCtx.createGain();
+  gainNode.gain.value = 0.3;
+  gainNode.connect(audioCtx.destination);
+}
+
+function stopAudioNodes(){
+  audioNodes.forEach(n=>{ try{ n.stop(); }catch(e){} });
+  audioNodes = [];
+}
+
+function playTrack(t){
+  stopAudioNodes();
+  initAudio();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  
+  // Oscilador principal
+  const osc = audioCtx.createOscillator();
+  osc.type = t.type;
+  osc.frequency.value = t.freq;
+  
+  // LFO para modulación suave (efecto cuenco)
+  const lfo = audioCtx.createOscillator();
+  lfo.frequency.value = t.mod;
+  const lfoGain = audioCtx.createGain();
+  lfoGain.gain.value = t.freq * 0.005;
+  lfo.connect(lfoGain);
+  lfoGain.connect(osc.frequency);
+  
+  // Reverb simple con delay
+  const delay = audioCtx.createDelay(0.5);
+  delay.delayTime.value = 0.3;
+  const feedback = audioCtx.createGain();
+  feedback.gain.value = 0.4;
+  delay.connect(feedback);
+  feedback.connect(delay);
+  
+  osc.connect(delay);
+  delay.connect(gainNode);
+  osc.connect(gainNode);
+  
+  // Segundo armónico para riqueza
+  const osc2 = audioCtx.createOscillator();
+  osc2.type = 'sine';
+  osc2.frequency.value = t.freq * 2;
+  const g2 = audioCtx.createGain();
+  g2.gain.value = 0.15;
+  osc2.connect(g2);
+  g2.connect(gainNode);
+  
+  lfo.start();
+  osc.start();
+  osc2.start();
+  audioNodes = [osc, osc2, lfo];
+}
+
+function toggleMusicBar(){
+  const bar = document.getElementById('music-bar');
+  bar.classList.toggle('hidden');
+  updateMusicTitle();
+}
+
+function updateMusicTitle(){
+  const t = document.getElementById('music-title');
+  if(t) t.textContent = TRACKS[trackIdx].name;
+}
+
+function loadTrack(i){
+  trackIdx = ((i % TRACKS.length) + TRACKS.length) % TRACKS.length;
+  updateMusicTitle();
+  if(musicPlaying) playTrack(TRACKS[trackIdx]);
+}
+
+function togglePlay(){
+  const btn = document.getElementById('music-play-btn');
+  if(musicPlaying){
+    stopAudioNodes();
+    if(audioCtx) audioCtx.suspend();
+    btn.textContent='▶️';
+    musicPlaying = false;
+  } else {
+    playTrack(TRACKS[trackIdx]);
+    btn.textContent='⏸';
+    musicPlaying = true;
+    toast('🎵 '+TRACKS[trackIdx].name);
+  }
+}
+
+function prevTrack(){ loadTrack(trackIdx-1); }
+function nextTrack(){ loadTrack(trackIdx+1); }
+function setVol(v){ if(gainNode) gainNode.gain.value = parseFloat(v) * 0.5; }
+
+// ══ VOZ INLINE — para cualquier textarea ══
+let vozGrabando = false;
+let vozRecorder = null;
+let vozChunks = [];
+let vozTargetId = null;
+let vozStream = null;
+
+async function iniciarVozPara(textareaId){
+  if(vozGrabando && vozTargetId === textareaId){
+    // Parar
+    vozRecorder?.stop();
+    return;
+  }
+  if(vozGrabando){ vozRecorder?.stop(); }
+  vozTargetId = textareaId;
+  try{
+    vozStream = await navigator.mediaDevices.getUserMedia({audio:true});
+    vozRecorder = new MediaRecorder(vozStream);
+    vozChunks = [];
+    vozRecorder.ondataavailable = e => vozChunks.push(e.data);
+    vozRecorder.onstop = async () => {
+      vozStream.getTracks().forEach(t=>t.stop());
+      vozGrabando = false;
+      updateVozBtns();
+      const blob = new Blob(vozChunks, {type:'audio/webm'});
+      // Transcribir con Whisper-compatible via Claude
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const b64 = e.target.result.split(',')[1];
+        const el = document.getElementById(textareaId);
+        if(el) el.value += (el.value ? '\n' : '') + '[Audio grabado]';
+        try{
+          const resp = await fetch('https://api.anthropic.com/v1/messages',{
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+              model:'claude-sonnet-4-6', max_tokens:500,
+              system:'Transcribe exactamente lo que se dice en este audio. Solo devuelve el texto transcrito, sin explicaciones.',
+              messages:[{role:'user',content:[
+                {type:'text',text:'Transcribe este audio:'},
+              ]}]
+            })
+          });
+          // Como no podemos enviar audio directamente, insertar placeholder
+          if(el){ 
+            el.value = el.value.replace('[Audio grabado]', '[Audio grabado — escríbelo aquí]');
+            toast('🎙️ Audio guardado — escribe lo que has dicho');
+          }
+        }catch(e){ 
+          if(el) el.value = el.value.replace('[Audio grabado]',''); 
+        }
+      };
+      reader.readAsDataURL(blob);
+    };
+    vozRecorder.start();
+    vozGrabando = true;
+    updateVozBtns();
+    toast('🔴 Grabando... toca el micrófono de nuevo para parar');
+  }catch(e){ toast('⚠️ Activa el micrófono en Ajustes del navegador'); }
+}
+
+function updateVozBtns(){
+  document.querySelectorAll('.voz-inline-btn').forEach(btn=>{
+    const tid = btn.dataset.target;
+    if(tid === vozTargetId && vozGrabando){
+      btn.classList.add('rec'); btn.innerHTML='🔴 Parar';
+    } else {
+      btn.classList.remove('rec'); btn.innerHTML='🎙️ Voz';
+    }
+  });
+}
+
+// Insertar botones de voz junto a cada textarea al cargar
+function insertarBotonesVoz(){
+  document.querySelectorAll('textarea').forEach(ta=>{
+    if(!ta.id || ta.parentNode.querySelector('.voz-inline')) return;
+    const div = document.createElement('div');
+    div.className = 'voz-inline';
+    div.innerHTML = `<button class="voz-inline-btn" data-target="${ta.id}" onclick="iniciarVozPara('${ta.id}')">🎙️ Voz</button>`;
+    ta.parentNode.insertBefore(div, ta.nextSibling);
+  });
+}
+
+// ══ PDF INFORME SELECCIONABLE ══
+function generarPDFAndrea(){
+  const data = load(); const n = new Date();
+  const sel = {
+    tareas: document.getElementById('pdf-tareas')?.checked,
+    emo: document.getElementById('pdf-emo')?.checked,
+    diario: document.getElementById('pdf-diario')?.checked,
+    wc: document.getElementById('pdf-wc')?.checked,
+    habitos: document.getElementById('pdf-habitos')?.checked,
+  };
+
+  // Recoger últimos 7 días
+  const dias = [];
+  for(let i=6;i>=0;i--){const d=new Date(n);d.setDate(n.getDate()-i);dias.push(key(d));}
+
+  let contenido = '';
+
+  if(sel.tareas){
+    const tareas = data._andrea?.tareas||[];
+    if(tareas.length){
+      contenido += '<h2>📋 Tareas de terapia</h2>';
+      tareas.forEach(t=>{
+        contenido += `<div style="margin-bottom:12px;padding:10px;border-left:3px solid #7c3aed;background:#f8f4ff;">
+          <strong>${t.titulo}</strong> <span style="color:${t.completada?'green':'orange'}">${t.completada?'✓ Completada':'Pendiente'}</span>
+          ${t.tipo?`<span style="font-size:.85em;color:#666;margin-left:8px;">(${t.tipo})</span>`:''}
+          ${t.comentarios?.filter(c=>c.texto).map(c=>`<p style="margin-top:6px;font-size:.9em;color:#444;">${c.fecha} ${c.hora}: ${c.texto}</p>`).join('')||''}
+        </div>`;
+      });
+    }
+  }
+
+  if(sel.emo){
+    contenido += '<h2>💭 Estado emocional</h2>';
+    const emj={1:'Mal',2:'Regular',3:'Neutro',4:'Bien',5:'Genial'};
+    const EMON={triste:'Triste',ansiosa:'Ansiosa',enfadada:'Enfadada',alegre:'Alegre',tranquila:'Tranquila',cansada:'Cansada',frustrada:'Frustrada',neutral:'Neutral'};
+    dias.forEach(k=>{
+      const e=data[k];if(!e)return;
+      const[y,m,d]=k.split('-');
+      let fila = `<strong>${parseInt(d)}/${parseInt(m)}:</strong> `;
+      if(e.humor) fila += `Humor: ${emj[e.humor]}. `;
+      if(e.emos?.length) fila += e.emos.map(em=>`${em.hora} ${EMON[em.emo]||em.emo}${em.porque?' ('+em.porque+')':''}`).join(', ');
+      if(e.humor||e.emos?.length) contenido += `<p>${fila}</p>`;
+    });
+  }
+
+  if(sel.diario){
+    contenido += '<h2>📝 Reflexiones</h2>';
+    dias.forEach(k=>{
+      const e=data[k];if(!e?.andrea&&!e?.diario)return;
+      const[y,m,d]=k.split('-');
+      contenido += `<div style="margin-bottom:8px;"><strong>${parseInt(d)}/${parseInt(m)}:</strong><br>${e.andrea||e.diario}</div>`;
+    });
+  }
+
+  if(sel.wc){
+    contenido += '<h2>🚽 Registro WC</h2>';
+    dias.forEach(k=>{
+      const e=data[k];if(!e?.wc?.length)return;
+      const[y,m,d]=k.split('-');
+      contenido += `<p><strong>${parseInt(d)}/${parseInt(m)}:</strong> ${e.wc.length} visitas. `;
+      const ansiedad = e.wc.filter(w=>w.motivo==='ansiedad'||w.motivo==='prevision'||w.motivo==='forzar').length;
+      if(ansiedad) contenido += `<span style="color:red;">${ansiedad} por ansiedad/previsión</span>.`;
+      const notas = e.wc.filter(w=>w.antes||w.durante).map(w=>`${w.hora}: ${w.antes||''} ${w.durante||''}`).join(' | ');
+      if(notas) contenido += ` <em>${notas}</em>`;
+      contenido += '</p>';
+    });
+  }
+
+  if(sel.habitos){
+    contenido += '<h2>✨ Hábitos</h2>';
+    dias.forEach(k=>{
+      const e=data[k];if(!e?.reg)return;
+      const r=e.reg;const[y,m,d]=k.split('-');
+      const bits=[];
+      if(r.sueno) bits.push(`Sueño: ${r.sueno}h`);
+      if(r.agua) bits.push(`Agua: ${r.agua} vasos`);
+      if(r.pasos) bits.push(`Pasos: ${r.pasos}`);
+      if(r.yn_past) bits.push(`Pastillas: ${r.yn_past==='si'?'✓':'✗'}`);
+      if(r.chips?.length) bits.push(`Ejercicio: ${r.chips.join(', ')}`);
+      if(r.st_dia) bits.push(`Día: ${r.st_dia}/5⭐`);
+      if(bits.length) contenido += `<p><strong>${parseInt(d)}/${parseInt(m)}:</strong> ${bits.join(' · ')}</p>`;
+    });
+  }
+
+  if(!contenido){ toast('Selecciona al menos una sección'); return; }
+
+  const fechaStr = n.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const html_pdf = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>Informe para Andrea</title>
+    <style>
+      body{font-family:Georgia,serif;max-width:700px;margin:40px auto;color:#222;line-height:1.7;font-size:14px;}
+      h1{color:#7c3aed;border-bottom:3px solid #7c3aed;padding-bottom:8px;margin-bottom:6px;}
+      h2{color:#5b21b6;margin-top:24px;margin-bottom:10px;font-size:1.1em;}
+      .meta{color:#888;font-size:.85em;margin-bottom:30px;}
+      p{margin-bottom:6px;}
+      @media print{body{margin:20px;}}
+    </style></head><body>
+    <h1>Informe para Andrea 💜</h1>
+    <div class="meta">Preparado por Rebeca · ${fechaStr}</div>
+    ${contenido}
+    </body></html>`;
+
+  const w = window.open('','_blank');
+  if(w){
+    w.document.write(html_pdf);
+    w.document.close();
+    setTimeout(()=>w.print(), 800);
+  } else {
+    // Fallback: descargar
+    const blob = new Blob([html_pdf], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download=`informe-andrea-${n.toISOString().slice(0,10)}.html`;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+    toast('📄 Informe descargado');
+  }
+}
+
+// ══ INIT ══
+renderHoy();renderCal();renderIA();renderEmoHoy();
+setTimeout(insertarBotonesVoz, 500);
+</script>
+</body>
+</html>
