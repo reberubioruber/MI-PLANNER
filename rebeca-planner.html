@@ -302,6 +302,13 @@ textarea.bare::placeholder{color:#b0bac5;font-style:italic;}
 .voz-inline-btn{padding:6px 12px;border-radius:8px;border:1.5px solid var(--line);background:var(--soft);font-size:.75rem;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s;}
 .voz-inline-btn:hover{border-color:var(--teal);}
 .voz-inline-btn.rec{background:#fee2e2;border-color:var(--red);color:var(--red);}
+/* SELECTOR FECHA */
+.fecha-selector{display:flex;align-items:center;gap:8px;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:14px;}
+.fecha-selector-lbl{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0;}
+.fecha-selector input[type=date]{border:none;background:transparent;font-family:'Inter',sans-serif;font-size:.88rem;font-weight:700;color:var(--ink);outline:none;flex:1;}
+.fecha-selector-hoy{padding:4px 10px;background:var(--teal);color:#fff;border:none;border-radius:7px;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;flex-shrink:0;}
+.fecha-banner{background:linear-gradient(135deg,#fff8e1,#fef3c7);border:1.5px solid #f59e0b;border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:.78rem;color:#92400e;display:none;text-align:center;font-weight:600;}
+.fecha-banner.show{display:block;}
 /* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:8px 16px;border-radius:20px;font-size:.8rem;opacity:0;transition:all .3s;z-index:200;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -333,6 +340,14 @@ html{scroll-behavior:smooth;}
 
 <!-- ══ HOY ══ -->
 <div id="page-hoy" class="page active">
+
+  <!-- SELECTOR FECHA -->
+  <div class="fecha-selector">
+    <span class="fecha-selector-lbl">📅 Día</span>
+    <input type="date" id="hoy-fecha-pick" onchange="cambiarFechaHoy(this.value)">
+    <button class="fecha-selector-hoy" onclick="volverHoy('hoy')">Hoy</button>
+  </div>
+  <div class="fecha-banner" id="hoy-banner">✏️ Editando día pasado</div>
 
   <!-- Cabecera fecha + turno -->
   <div style="margin-bottom:14px;">
@@ -512,7 +527,13 @@ html{scroll-behavior:smooth;}
 
 <!-- ══ WC ══ -->
 <div id="page-wc" class="page">
-  <div style="margin-bottom:14px;"><div class="ph" style="font-size:1.3rem;">Registro WC 🚽</div><div class="ps">hoy · <span id="wc-fecha"></span></div></div>
+  <div class="fecha-selector">
+    <span class="fecha-selector-lbl">📅 Día</span>
+    <input type="date" id="wc-fecha-pick" onchange="cambiarFechaWC(this.value)">
+    <button class="fecha-selector-hoy" onclick="volverHoy('wc')">Hoy</button>
+  </div>
+  <div class="fecha-banner" id="wc-banner">✏️ Editando día pasado</div>
+  <div style="margin-bottom:14px;"><div class="ph" style="font-size:1.3rem;">Registro WC 🚽</div><div class="ps"><span id="wc-fecha"></span></div></div>
   <div class="card">
     <div class="sh" style="margin-top:0;">Nueva entrada</div>
     <div class="trow"><div class="tlb">Hora</div><input class="wc-time" type="time" id="wc-hora"></div>
@@ -542,7 +563,13 @@ html{scroll-behavior:smooth;}
 
 <!-- ══ SOCIAL ══ -->
 <div id="page-social" class="page">
-  <div style="margin-bottom:14px;"><div class="ph" style="font-size:1.3rem;">Socialización 🤝</div><div class="ps">conexiones de hoy</div></div>
+  <div class="fecha-selector">
+    <span class="fecha-selector-lbl">📅 Día</span>
+    <input type="date" id="soc-fecha-pick" onchange="cambiarFechaSoc(this.value)">
+    <button class="fecha-selector-hoy" onclick="volverHoy('soc')">Hoy</button>
+  </div>
+  <div class="fecha-banner" id="soc-banner">✏️ Editando día pasado</div>
+  <div style="margin-bottom:14px;"><div class="ph" style="font-size:1.3rem;">Socialización 🤝</div><div class="ps">conexiones del día</div></div>
   <div class="card">
     <div class="sh" style="margin-top:0;">¿Con quién has conectado hoy?</div>
     <div class="soc-grid" id="soc-grid">
@@ -651,14 +678,7 @@ html{scroll-behavior:smooth;}
           <input type="checkbox" id="inf-social" style="width:18px;height:18px;accent-color:#7c3aed;"> Socialización
         </label>
       </div>
-      <!-- Sincronizar checkboxes pdf con inf -->
-      <script>
-      ['tareas','emo','diario','wc','habitos'].forEach(k=>{
-        const el=document.getElementById('inf-'+k);
-        const pdf=document.getElementById('pdf-'+k);
-        if(el&&pdf) el.addEventListener('change',()=>pdf.checked=el.checked);
-      });
-      </script>
+      <!-- checkboxes sincronizados via initFechaPickers -->
 
       <div style="margin-bottom:10px;">
         <div style="font-size:.72rem;font-weight:700;color:#7c3aed;margin-bottom:6px;">Período</div>
@@ -810,6 +830,14 @@ html{scroll-behavior:smooth;}
 <!-- audio generado por Web Audio API -->
 
 <script>
+// ══ FECHAS ACTIVAS ══
+let fechaActiva={hoy:null,reg:null,wc:null,soc:null};
+function cambiarFechaHoy(v){fechaActiva.hoy=v;const b=document.getElementById('hoy-banner');if(b)b.classList.toggle('show',v!==today());renderHoyConFecha(v);}
+function cambiarFechaReg(v){fechaActiva.reg=v;const b=document.getElementById('reg-banner');if(b)b.classList.toggle('show',v!==today());renderRegConFecha(v);}
+function cambiarFechaWC(v){fechaActiva.wc=v;const b=document.getElementById('wc-banner');if(b)b.classList.toggle('show',v!==today());renderWCConFecha(v);}
+function cambiarFechaSoc(v){fechaActiva.soc=v;const b=document.getElementById('soc-banner');if(b)b.classList.toggle('show',v!==today());renderSocConFecha(v);}
+function volverHoy(tab){const t=today();fechaActiva[tab]=t;const inp=document.getElementById(tab+'-fecha-pick');if(inp)inp.value=t;const b=document.getElementById(tab+'-banner');if(b)b.classList.remove('show');if(tab==='hoy')renderHoyConFecha(t);else if(tab==='reg')renderRegConFecha(t);else if(tab==='wc')renderWCConFecha(t);else if(tab==='soc')renderSocConFecha(t);}
+
 // ══ TURNOS ══
 const TURNOS={
   '2026-06-01':'dia','2026-06-02':'dia','2026-06-03':'dia',
@@ -951,16 +979,17 @@ function guardarEmo(){
   if(!emoSel){toast('Selecciona un estado primero');return;}
   const n=new Date();
   const entry={emo:emoSel,porque:document.getElementById('emo-porque').value.trim(),hora:`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`,ts:Date.now()};
-  const k=today();const data=load();if(!data[k])data[k]={};if(!data[k].emos)data[k].emos=[];
+  const k=fechaActiva.hoy||today();const data=load();if(!data[k])data[k]={};if(!data[k].emos)data[k].emos=[];
   data[k].emos.push(entry);save(data);
   document.getElementById('emo-porque').value='';
   emoSel=null;document.querySelectorAll('.emo-quick').forEach(b=>b.classList.remove('on'));
   renderEmoHoy();toast('✓ Estado registrado');
 }
-function renderEmoHoy(){
+function renderEmoHoyConFecha(k){
+  k = k||fechaActiva.hoy||today();
   actualizarHoraLbl();
   const el=document.getElementById('emo-historial-hoy');if(!el)return;
-  const data=load();const emos=(data[today()]?.emos)||[];
+  const data=load();const emos=(data[k]?.emos)||[];
   if(!emos.length){el.innerHTML='';return;}
   const EMO_EMOJI={triste:'😢',ansiosa:'😰',enfadada:'😠',alegre:'😊',tranquila:'😌',cansada:'😴',frustrada:'😤',neutral:'😐'};
   el.innerHTML=`<div style="font-size:.65rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:5px;">Hoy registrado</div>`+
@@ -1030,7 +1059,7 @@ function wcMotivo(m){wcMotivoS=m;document.querySelectorAll('.wc-m').forEach(b=>b
 function addWC(){
   const hora=document.getElementById('wc-hora').value||new Date().toTimeString().slice(0,5);
   const entry={hora,tipo:wcTipoS,ganas:ynS.ganas,motivo:wcMotivoS,antes:document.getElementById('wc-antes').value,durante:document.getElementById('wc-durante').value,ts:Date.now()};
-  const k=today();const data=load();if(!data[k])data[k]={};if(!data[k].wc)data[k].wc=[];
+  const k=fechaActiva.wc||today();const data=load();if(!data[k])data[k]={};if(!data[k].wc)data[k].wc=[];
   data[k].wc.push(entry);save(data);
   document.getElementById('wc-antes').value='';document.getElementById('wc-durante').value='';
   wcTipoS=null;wcMotivoS=null;ynS.ganas=null;
@@ -1038,9 +1067,13 @@ function addWC(){
   document.querySelectorAll('#yn-ganas-si,#yn-ganas-no').forEach(b=>b.classList.remove('on'));
   renderWC();toast('✓ Entrada WC guardada');
 }
-function renderWC(){
-  document.getElementById('wc-fecha').textContent=now().getDate()+' '+MESES[now().getMonth()];
-  const data=load();const wcs=(data[today()]?.wc)||[];
+function renderWC(){ renderWCConFecha(fechaActiva.wc||today()); }
+function renderWCConFecha(k){
+  k=k||fechaActiva.wc||today();
+  const parts=k.split('-');const nd=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+  document.getElementById('wc-fecha').textContent=nd.getDate()+' '+MESES[nd.getMonth()];
+  const picker=document.getElementById('wc-fecha-pick');if(picker&&picker.value!==k)picker.value=k;
+  const data=load();const wcs=(data[k]?.wc)||[];
   const lista=document.getElementById('wc-lista');
   if(!wcs.length){lista.innerHTML='<div class="empty"><div class="empty-i">🚽</div>Sin entradas hoy</div>';return;}
   const motivoEmoji={necesidad:'✓',ansiedad:'⚡',prevision:'🕐',forzar:'💪'};
@@ -1055,21 +1088,23 @@ function renderWC(){
       ${w.durante?`<div style="font-size:.75rem;color:var(--muted)">Después: ${w.durante}</div>`:''}
     </div>`).join('');
 }
-function delWC(i){const data=load();const k=today();if(data[k]?.wc){data[k].wc.splice(i,1);save(data);renderWC();}}
+function delWC(i){const data=load();const k=fechaActiva.wc||today();if(data[k]?.wc){data[k].wc.splice(i,1);save(data);renderWC();}}
 
 // ══ EVENTOS ══
+function renderEvHoy(){ renderEvHoyConFecha(fechaActiva.hoy||today()); }
 function addEvHoy(){
   const inp=document.getElementById('ev-hoy-inp');const txt=inp.value.trim();if(!txt)return;
   const tipo=document.getElementById('ev-hoy-tipo').value;
-  const k=today();const data=load();if(!data[k])data[k]={};if(!data[k].eventos)data[k].eventos=[];
+  const k=fechaActiva.hoy||today();const data=load();if(!data[k])data[k]={};if(!data[k].eventos)data[k].eventos=[];
   data[k].eventos.push({txt,tipo,done:false,ts:Date.now()});save(data);inp.value='';renderEvHoy();
 }
 function toggleEvDone(i){
-  const k=today();const data=load();if(data[k]?.eventos){data[k].eventos[i].done=!data[k].eventos[i].done;save(data);renderEvHoy();renderCal();}
+  const k=fechaActiva.hoy||today();const data=load();if(data[k]?.eventos){data[k].eventos[i].done=!data[k].eventos[i].done;save(data);renderEvHoy();renderCal();}
 }
-function delEv(i){const k=today();const data=load();if(data[k]?.eventos){data[k].eventos.splice(i,1);save(data);renderEvHoy();renderCal();}}
-function renderEvHoy(){
-  const data=load();const evs=(data[today()]?.eventos)||[];
+function delEv(i){const k=fechaActiva.hoy||today();const data=load();if(data[k]?.eventos){data[k].eventos.splice(i,1);save(data);renderEvHoy();renderCal();}}
+function renderEvHoyConFecha(k){
+  k = k || fechaActiva.hoy || today();
+  const data=load();const evs=(data[k]?.eventos)||[];
   const lista=document.getElementById('ev-hoy-list');
   const tipoIcon={evento:'📅',recuerda:'💭'};
   if(!evs.length){lista.innerHTML='<div style="font-size:.78rem;color:var(--muted);padding:4px 0;">Sin eventos hoy. Añade uno abajo.</div>';return;}
@@ -1275,10 +1310,17 @@ function aplicarDato(campo,valor,el){
 }
 
 // ══ HOY ══
-function renderHoy(){
-  const n=now();const k=today();const t=TURNOS[k]||'libre';
+function renderHoyConFecha(k){
+  const parts = k.split('-');
+  const n = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  const t=TURNOS[k]||'libre';
   document.getElementById('f-hoy').textContent=`${n.getDate()} de ${MESES[n.getMonth()]}`;
   document.getElementById('f-dia').textContent=DIAS[n.getDay()].toUpperCase()+' · '+n.getFullYear();
+  const picker = document.getElementById('hoy-fecha-pick');
+  if(picker && picker.value !== k) picker.value = k;
+  const banner = document.getElementById('hoy-banner');
+  if(banner) banner.classList.toggle('show', k !== today());
+
   const tc=document.getElementById('turno-card');
   if(t==='dia')tc.innerHTML=`<div class="tcard td"><div class="tlbl">☀️ Turno de día · Torraspapel</div><div class="thrs">06:00 → 18:00</div><div class="bls"><span class="bl bl-a">🍽 Comida ~1h</span><span class="bl bl-b">💜 Deberes Andrea ~30min</span></div></div>`;
   else if(t==='noche')tc.innerHTML=`<div class="tcard tn"><div class="tlbl">🌙 Turno de noche · Torraspapel</div><div class="thrs">18:00 → 06:00</div><div class="bls"><span class="bl bl-a">🍽 Comida ~1h</span><span class="bl bl-b">💜 Deberes Andrea</span></div></div>`;
@@ -1288,82 +1330,54 @@ function renderHoy(){
   if(ex)ec.innerHTML=`<div class="exh"><div class="exh-l">🎓 EXAMEN HOY</div><div class="exh-n">${ex.a}</div><div class="exh-h">${ex.h} · ${ex.l}</div></div>`;
   else ec.innerHTML='';
   const data=load();
-  if(data[k]){document.getElementById('txt-diario').value=data[k].diario||'';}
-  renderEvHoy();
-  renderEmoHoy();
-}
-function guardarHoy(){
-  const k=today();const data=load();if(!data[k])data[k]={};
-  data[k].diario=document.getElementById('txt-diario').value;
-  data[k].ts=Date.now();save(data);toast('✓ Diario guardado');
+  document.getElementById('txt-diario').value = data[k]?.diario||'';
+  renderEvHoyConFecha(k);
+  renderEmoHoyConFecha(k);
 }
 
-// ══ REGISTRO ══
-function renderReg(){
-  document.getElementById('reg-tit').textContent=now().getDate()+' de '+MESES[now().getMonth()];
-  const k=today();const data=load();const r=data[k]?.reg||{};
-  fotos=r.fotos||[];renderFotoGrid();
-  ['peso','agua','wc2','pasos','hEst','insta','tiktok','compras','panTotal','minEj','sueno'].forEach(f=>{const el=document.getElementById('v-'+f);if(el&&r[f]!==undefined)el.value=r[f];});
-  ynS={};['past','ej','lee','apr'].forEach(f=>{if(r['yn_'+f])yn(f,r['yn_'+f]);});
-  starS={};['ansiedad','dia'].forEach(f=>{if(r['st_'+f])star(f,r['st_'+f]);});
-  evalS={};Object.keys(r).filter(k=>k.startsWith('ev_')).forEach(k=>{evalS[k.slice(3)]=true;});
-  ejS=new Set(r.chips||[]);['caminar','furia','cardio','fuerza','yoga','otro'].forEach(t=>{document.getElementById('ej-'+t)?.classList.toggle('on',ejS.has(t));});
-  ['cuerpo','ej','mente','pan','mejor','mejorar','grat'].forEach(f=>{const el=document.getElementById('n-'+f);if(el)el.value=r['n_'+f]||'';});
-}
-function guardarReg(){
-  const k=today();const data=load();if(!data[k])data[k]={};
-  const r={};
-  ['peso','agua','pasos','hEst','insta','tiktok','compras','panTotal','minEj','sueno'].forEach(f=>{const el=document.getElementById('v-'+f);if(el)r[f]=parseFloat(el.value)||0;});
-  const anNum=document.getElementById('v-ansiedad-num');if(anNum&&anNum.value)r.ansiedad_num=parseInt(anNum.value);
-  ['past','ej','lee','apr'].forEach(f=>{if(ynS[f])r['yn_'+f]=ynS[f];});
-  ['ansiedad','dia'].forEach(f=>{if(starS[f])r['st_'+f]=starS[f];});
-  Object.keys(evalS).forEach(k=>{if(evalS[k])r['ev_'+k]=true;});
-  r.chips=[...ejS];
-  ['cuerpo','ej','mente','pan','mejor','mejorar','grat'].forEach(f=>{const el=document.getElementById('n-'+f);if(el)r['n_'+f]=el.value;});
-  r.fotos=fotos.slice(0,3);
-  data[k].reg=r;data[k].ts=Date.now();save(data);toast('✓ Registro guardado 💪');
+function renderHoy(){
+  renderHoyConFecha(fechaActiva.hoy||today());
 }
 
-// ══ SOCIAL ══
-function renderSocial(){
-  const k=today();const data=load();const s=data[k]?.social||{};
-  socS=new Set(s.conexiones||[]);
-  ['yo','marco','furia','familiar','trabajo','conocido','desconocido','tvredes'].forEach(c=>document.getElementById('soc-'+c)?.classList.toggle('on',socS.has(c)));
-  renderSocNotas();
+
+
+// ══ EVENTOS HOY (wrapper) ══
+function renderEvHoy(){ renderEvHoyConFecha(fechaActiva.hoy||today()); }
+
+function addEvHoy(){
+  const inp=document.getElementById('ev-hoy-inp');const txt=inp.value.trim();if(!txt)return;
+  const tipo=document.getElementById('ev-hoy-tipo').value;
+  const k=fechaActiva.hoy||today();const data=load();if(!data[k])data[k]={};if(!data[k].eventos)data[k].eventos=[];
+  data[k].eventos.push({txt,tipo,done:false,ts:Date.now()});save(data);inp.value='';renderEvHoyConFecha(k);
 }
-function guardarSocial(){
-  const k=today();const data=load();if(!data[k])data[k]={};
-  const s=data[k].social||{};
-  s.conexiones=[...socS];
-  SOC_ITEMS.forEach(item=>{const el=document.getElementById('n-soc-'+item.id);if(el)s['n_'+item.id]=el.value;});
-  if(evalS.soc_pos)s.eval='pos';if(evalS.soc_neg)s.eval='neg';
-  data[k].social=s;save(data);toast('✓ Socialización guardada 🤝');
+function toggleEvDone(i){
+  const k=fechaActiva.hoy||today();const data=load();if(data[k]?.eventos){data[k].eventos[i].done=!data[k].eventos[i].done;save(data);renderEvHoyConFecha(k);renderCal();}
+}
+function delEv(i){const k=fechaActiva.hoy||today();const data=load();if(data[k]?.eventos){data[k].eventos.splice(i,1);save(data);renderEvHoyConFecha(k);renderCal();}}
+function renderEvHoyConFecha(k){
+  k=k||fechaActiva.hoy||today();
+  const data=load();const evs=(data[k]?.eventos)||[];
+  const lista=document.getElementById('ev-hoy-list');
+  const tipoIcon={evento:'📅',recuerda:'💭'};
+  if(!evs.length){lista.innerHTML='<div style="font-size:.78rem;color:var(--muted);padding:4px 0;">Sin eventos. Añade uno abajo.</div>';return;}
+  lista.innerHTML=evs.map((e,i)=>`
+    <div class="ev-item">
+      <div class="ev-check ${e.done?'done':'pend'}" onclick="toggleEvDone(${i})">${e.done?'✓':''}</div>
+      <span style="font-size:.8rem;">${tipoIcon[e.tipo]||'📌'}</span>
+      <span class="ev-txt ${e.done?'done-txt':''}">${e.txt}</span>
+      <button class="ev-del" onclick="delEv(${i})">✕</button>
+    </div>`).join('');
 }
 
-// ══ TAROT ══
-function renderTarot(){
-  const k=today();const data=load();const t=data[k]?.tarot||{};
-  document.getElementById('tarot-inp-carta').value=t.carta||'';
-  document.getElementById('tarot-inp-sig').value=t.significado||'';
-  document.getElementById('tarot-inp-oraculo').value=t.oraculo||'';
-  document.getElementById('tarot-inp-num-nota').value=t.numNota||'';
-  numsHoy=t.nums||[];renderNumChips();
-  if(t.carta){document.getElementById('tarot-nombre').textContent=t.carta;document.getElementById('tarot-sig').textContent=t.significado||'';}
-}
-function addNum(){
-  const inp=document.getElementById('num-inp');const v=inp.value.trim();if(!v)return;
-  numsHoy.push(v);inp.value='';renderNumChips();
-}
-function renderNumChips(){
-  document.getElementById('num-chips-display').innerHTML=numsHoy.map((n,i)=>`<span class="num-chip" onclick="numsHoy.splice(${i},1);renderNumChips()" style="cursor:pointer;">${n} ✕</span>`).join('');
-}
-function guardarTarot(){
-  const k=today();const data=load();if(!data[k])data[k]={};
-  const carta=document.getElementById('tarot-inp-carta').value;
-  const t={carta,significado:document.getElementById('tarot-inp-sig').value,oraculo:document.getElementById('tarot-inp-oraculo').value,nums:numsHoy,numNota:document.getElementById('tarot-inp-num-nota').value};
-  data[k].tarot=t;save(data);
-  if(carta){document.getElementById('tarot-nombre').textContent=carta;document.getElementById('tarot-sig').textContent=t.significado;}
-  toast('✓ Tarot & numerología guardados ✨');
+// ══ FOTOS ══
+function renderFotoGrid(){
+  const grid=document.getElementById('foto-grid');
+  if(!grid)return;
+  grid.innerHTML=fotos.map((s,i)=>`
+    <div style="position:relative;aspect-ratio:1;border-radius:7px;overflow:hidden;background:#dde3ea;">
+      <img src="${s}" style="width:100%;height:100%;object-fit:cover;display:block;">
+      <button onclick="fotos.splice(${i},1);renderFotoGrid()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;">✕</button>
+    </div>`).join('');
 }
 
 // ══ CALENDARIO ══
@@ -1396,185 +1410,83 @@ function renderCal(){
   }
   document.getElementById('dia-det').classList.remove('show');
 }
+
 function showDet(k,d,t,ex,ent){
   const det=document.getElementById('dia-det');
   const[y,mm,dd]=k.split('-');
   document.getElementById('det-tit').textContent=`${parseInt(dd)} de ${MESES[parseInt(mm)-1]} ${y}`;
-  const tl=t==='dia'?'☀️ Turno día · 06:00-18:00':t==='noche'?'🌙 Turno noche · 18:00-06:00':'🌿 Día libre';
+  const tl=t==='dia'?'☀️ Turno día 06-18h':t==='noche'?'🌙 Turno noche 18-06h':'🌿 Día libre';
   const EMO_EMOJI={triste:'😢',ansiosa:'😰',enfadada:'😠',alegre:'😊',tranquila:'😌',cansada:'😴',frustrada:'😤',neutral:'😐'};
-  const ANS_LBL={1:'Leve',2:'Moderada',3:'Notable',4:'Alta',5:'Muy alta'};
-
   let html=`<div style="font-size:.73rem;color:var(--muted);padding:4px 0 10px;">${tl}</div>`;
-
-  if(ex) html+=`
-    <div class="det-bloque" style="background:#f3eeff;border-left:3px solid var(--purple);">
-      <div class="det-bloque-tit">🎓 Examen</div>
-      <div class="det-bloque-txt">${ex.a} · ${ex.h}</div>
-    </div>`;
-
-  if(!ent){
-    html+=`<div style="text-align:center;padding:20px;color:var(--muted);font-style:italic;font-size:.83rem;">Sin entradas registradas este día</div>`;
-    document.getElementById('det-body').innerHTML=html;
-    det.classList.add('show');det.scrollIntoView({behavior:'smooth',block:'nearest'});
-    return;
-  }
-
-  // ESTADOS EMOCIONALES DEL DÍA
-  if(ent.emos?.length){
-    html+=`<div class="det-bloque">
-      <div class="det-bloque-tit">💭 Estados del día</div>`;
-    ent.emos.forEach(e=>html+=`
-      <div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);">
-        <span style="font-size:1.1rem;">${EMO_EMOJI[e.emo]||'💭'}</span>
-        <div>
-          <span style="font-size:.82rem;font-weight:700;">${e.emo.charAt(0).toUpperCase()+e.emo.slice(1)}</span>
-          <span style="font-size:.72rem;color:var(--muted);margin-left:6px;">${e.hora}</span>
-          ${e.porque?`<div style="font-size:.78rem;color:#445;margin-top:2px;">${e.porque}</div>`:''}
-        </div>
-      </div>`);
-    html+=`</div>`;
-  }
-
-  // EVENTOS Y RECORDATORIOS
-  const evs=ent.eventos||[];
-  if(evs.length){
-    html+=`<div class="det-bloque">
-      <div class="det-bloque-tit">📅 Eventos y recordatorios</div>`;
-    evs.forEach(e=>html+=`
-      <div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);">
-        <span style="font-size:.9rem;color:${e.done?'var(--green)':'var(--red)'};">${e.done?'✅':'🔴'}</span>
-        <span style="font-size:.82rem;${e.done?'text-decoration:line-through;color:var(--muted);':''}">${e.txt}</span>
-        <span style="font-size:.68rem;color:var(--muted);margin-left:auto;">${e.tipo==='recuerda'?'💭':'📅'}</span>
-      </div>`);
-    html+=`</div>`;
-  }
-
-  // DIARIO
-  if(ent.diario){
-    html+=`<div class="det-bloque">
-      <div class="det-bloque-tit">📝 Diario</div>
-      <div style="font-size:.83rem;line-height:1.7;color:#334;white-space:pre-wrap;">${ent.diario}</div>
-    </div>`;
-  }
-
-  // ANDREA
-  if(ent.andrea){
-    html+=`<div class="det-bloque" style="background:#f8f4ff;border-left:3px solid var(--purple);">
-      <div class="det-bloque-tit">💜 Reflexión Andrea</div>
-      <div style="font-size:.83rem;line-height:1.7;color:#334;white-space:pre-wrap;">${ent.andrea}</div>
-    </div>`;
-  }
-
-  // REGISTRO
-  if(ent.reg){
-    const r=ent.reg;
-    const ANS_EMOJI={1:'😰',2:'😟',3:'😬',4:'😤',5:'🤯'};
-    html+=`<div class="det-bloque">
-      <div class="det-bloque-tit">📊 Registro del día</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">`;
-    if(r.peso) html+=`<div class="det-dato">⚖️ <strong>${r.peso}</strong> kg</div>`;
-    if(r.agua) html+=`<div class="det-dato">💧 <strong>${r.agua}</strong> vasos</div>`;
-    if(r.pasos) html+=`<div class="det-dato">🚶 <strong>${r.pasos}</strong> pasos</div>`;
-    if(r.hEst) html+=`<div class="det-dato">📚 <strong>${r.hEst}h</strong> estudio</div>`;
-    if(r.sueno) html+=`<div class="det-dato">🌙 <strong>${r.sueno}h</strong> sueño</div>`;
-    if(r.minEj) html+=`<div class="det-dato">🏃 <strong>${r.minEj}min</strong> ejercicio</div>`;
-    if(r.yn_past) html+=`<div class="det-dato">💊 Pastillas: <strong>${r.yn_past==='si'?'✓':'✗'}</strong></div>`;
-    if(r.st_dia) html+=`<div class="det-dato">⭐ Día: <strong>${r.st_dia}/5</strong></div>`;
-    if(r.ansiedad||r.ansiedad_num){
-      const aEmoji=r.ansiedad?ANS_EMOJI[r.ansiedad]:'';
-      const aNum=r.ansiedad_num?` ${r.ansiedad_num}/10`:'';
-      html+=`<div class="det-dato">😰 Ansiedad: <strong>${aEmoji}${aNum||ANS_LBL[r.ansiedad]||''}</strong></div>`;
+  if(ex)html+=`<div class="det-bloque" style="background:#f3eeff;border-left:3px solid var(--purple);"><div class="det-bloque-tit">🎓 Examen</div><div class="det-bloque-txt">${ex.a}</div></div>`;
+  if(!ent){html+=`<div style="text-align:center;padding:20px;color:var(--muted);font-style:italic;font-size:.83rem;">Sin entradas este día<br><button onclick="irADia('${k}')" style="margin-top:10px;padding:7px 16px;background:var(--teal);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;">✏️ Añadir entrada</button></div>`;
+  } else {
+    if(ent.emos?.length){
+      html+=`<div class="det-bloque"><div class="det-bloque-tit">💭 Estados del día</div>`;
+      ent.emos.forEach(e=>html+=`<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);"><span style="font-size:1.1rem;">${EMO_EMOJI[e.emo]||'💭'}</span><div><span style="font-size:.82rem;font-weight:700;">${e.emo.charAt(0).toUpperCase()+e.emo.slice(1)}</span><span style="font-size:.72rem;color:var(--muted);margin-left:6px;">${e.hora}</span>${e.porque?`<div style="font-size:.78rem;color:#445;margin-top:2px;">${e.porque}</div>`:''}</div></div>`);
+      html+=`</div>`;
     }
-    if(r.panTotal) html+=`<div class="det-dato">📱 <strong>${r.panTotal}min</strong> pantalla</div>`;
-    html+=`</div>`;
-    if(r.n_mejor) html+=`<div style="margin-top:8px;font-size:.78rem;"><span style="color:var(--green);font-weight:700;">Lo mejor:</span> ${r.n_mejor}</div>`;
-    if(r.n_grat) html+=`<div style="margin-top:4px;font-size:.78rem;"><span style="color:var(--teal);font-weight:700;">Gratitud:</span> ${r.n_grat}</div>`;
-    if(r.n_mejorar) html+=`<div style="margin-top:4px;font-size:.78rem;"><span style="color:var(--amber);font-weight:700;">Mejoraría:</span> ${r.n_mejorar}</div>`;
-    if(r.chips?.length) html+=`<div style="margin-top:6px;font-size:.78rem;">🏃 ${r.chips.join(', ')}</div>`;
-    html+=`</div>`;
+    const evs=ent.eventos||[];
+    if(evs.length){
+      html+=`<div class="det-bloque"><div class="det-bloque-tit">📅 Eventos</div>`;
+      evs.forEach(e=>html+=`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);"><span style="color:${e.done?'var(--green)':'var(--red)'};">${e.done?'✅':'🔴'}</span><span style="font-size:.82rem;${e.done?'text-decoration:line-through;color:var(--muted);':''}">${e.txt}</span></div>`);
+      html+=`</div>`;
+    }
+    if(ent.diario)html+=`<div class="det-bloque"><div class="det-bloque-tit">📝 Diario</div><div style="font-size:.83rem;line-height:1.7;color:#334;white-space:pre-wrap;">${ent.diario}</div></div>`;
+    if(ent.andrea)html+=`<div class="det-bloque" style="background:#f8f4ff;border-left:3px solid var(--purple);"><div class="det-bloque-tit">💜 Reflexión Andrea</div><div style="font-size:.83rem;line-height:1.7;color:#334;white-space:pre-wrap;">${ent.andrea}</div></div>`;
+    if(ent.reg){
+      const r=ent.reg;
+      html+=`<div class="det-bloque"><div class="det-bloque-tit">📊 Registro</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">`;
+      if(r.peso)html+=`<div class="det-dato">⚖️ <strong>${r.peso}</strong> kg</div>`;
+      if(r.agua)html+=`<div class="det-dato">💧 <strong>${r.agua}</strong> vasos</div>`;
+      if(r.pasos)html+=`<div class="det-dato">🚶 <strong>${r.pasos}</strong> pasos</div>`;
+      if(r.hEst)html+=`<div class="det-dato">📚 <strong>${r.hEst}h</strong> estudio</div>`;
+      if(r.sueno)html+=`<div class="det-dato">🌙 <strong>${r.sueno}h</strong> sueño</div>`;
+      if(r.yn_past)html+=`<div class="det-dato">💊 <strong>${r.yn_past==='si'?'✓':'✗'}</strong></div>`;
+      if(r.st_dia)html+=`<div class="det-dato">⭐ <strong>${r.st_dia}/5</strong></div>`;
+      html+=`</div>`;
+      if(r.n_mejor)html+=`<div style="margin-top:6px;font-size:.78rem;"><span style="color:var(--green);font-weight:700;">Lo mejor:</span> ${r.n_mejor}</div>`;
+      if(r.n_grat)html+=`<div style="margin-top:4px;font-size:.78rem;"><span style="color:var(--teal);font-weight:700;">Gratitud:</span> ${r.n_grat}</div>`;
+      html+=`</div>`;
+    }
+    if(ent.tarot?.carta||ent.tarot?.nums?.length){
+      html+=`<div class="det-bloque" style="background:#1a0533;color:#e0d0ff;border-left:3px solid var(--purple);"><div class="det-bloque-tit" style="color:#c4b5fd;">🃏 Tarot</div>`;
+      if(ent.tarot.carta)html+=`<div style="font-size:.9rem;font-weight:700;">${ent.tarot.carta}</div>`;
+      if(ent.tarot.nums?.length)html+=`<div style="font-size:.8rem;margin-top:4px;">🔢 ${ent.tarot.nums.join(' · ')}</div>`;
+      html+=`</div>`;
+    }
+    html+=`<button onclick="irADia('${k}')" style="width:100%;margin-top:10px;padding:8px;background:var(--teal);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;">✏️ Editar este día</button>`;
   }
-
-  // WC
-  if(ent.wc?.length){
-    const motivoEmoji={necesidad:'✓',ansiedad:'⚡',prevision:'🕐',forzar:'⚠️'};
-    const tipoEmoji={pis:'💧',caca:'💩',ambos:'💧💩'};
-    html+=`<div class="det-bloque">
-      <div class="det-bloque-tit">🚽 Registro WC</div>`;
-    ent.wc.forEach(w=>html+=`
-      <div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:.78rem;align-items:flex-start;">
-        <span>${tipoEmoji[w.tipo]||'?'}</span>
-        <div>
-          <span style="font-weight:700;">${w.hora}</span>
-          ${w.motivo?`<span style="color:var(--muted);margin-left:5px;">${motivoEmoji[w.motivo]} ${w.motivo}</span>`:''}
-          ${w.ganas?`<span style="color:var(--muted);margin-left:5px;">${w.ganas==='si'?'con ganas':'sin ganas'}</span>`:''}
-          ${w.antes?`<div style="color:#556;margin-top:2px;">Antes: ${w.antes}</div>`:''}
-          ${w.durante?`<div style="color:#556;margin-top:1px;">Después: ${w.durante}</div>`:''}
-        </div>
-      </div>`);
-    html+=`</div>`;
-  }
-
-  // SOCIAL
-  if(ent.social?.conexiones?.length){
-    const SOC_EMOJI={yo:'🪞',marco:'💑',furia:'🐕',familiar:'👨‍👩‍👧',trabajo:'👷',conocido:'👋',desconocido:'🌍',tvredes:'📺'};
-    html+=`<div class="det-bloque">
-      <div class="det-bloque-tit">🤝 Socialización</div>`;
-    ent.social.conexiones.forEach(c=>{
-      const nota=ent.social['n_'+c];const ev=ent.social['eval_'+c];
-      html+=`<div style="display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid var(--line);">
-        <span>${SOC_EMOJI[c]||'👤'}</span>
-        <div style="flex:1;font-size:.8rem;">
-          <span style="font-weight:700;">${c.charAt(0).toUpperCase()+c.slice(1)}</span>
-          ${ev?`<span style="margin-left:5px;">${ev==='pos'?'😊':'😟'}</span>`:''}
-          ${nota?`<div style="color:#556;margin-top:2px;">${nota}</div>`:''}
-        </div>
-      </div>`;
-    });
-    html+=`</div>`;
-  }
-
-  // TAROT
-  if(ent.tarot?.carta||ent.tarot?.nums?.length){
-    html+=`<div class="det-bloque" style="background:#1a0533;color:#e0d0ff;border-left:3px solid var(--purple);">
-      <div class="det-bloque-tit" style="color:#c4b5fd;">🃏 Tarot & Numerología</div>`;
-    if(ent.tarot.carta) html+=`<div style="font-size:.9rem;font-weight:700;margin-bottom:4px;">${ent.tarot.carta}</div>`;
-    if(ent.tarot.significado) html+=`<div style="font-size:.78rem;color:#c4b5fd;line-height:1.6;">${ent.tarot.significado}</div>`;
-    if(ent.tarot.nums?.length) html+=`<div style="margin-top:6px;font-size:.8rem;">🔢 ${ent.tarot.nums.join(' · ')}</div>`;
-    if(ent.tarot.numNota) html+=`<div style="font-size:.75rem;color:#a99de0;margin-top:4px;">${ent.tarot.numNota}</div>`;
-    html+=`</div>`;
-  }
-
   document.getElementById('det-body').innerHTML=html;
   det.classList.add('show');det.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function verAndrea(k){goTo('andrea',document.querySelector('.nb2:nth-child(7)'));setTimeout(()=>{andTab('diario');setTimeout(()=>{const el=document.getElementById('and-'+k);if(el)el.scrollIntoView({behavior:'smooth'});},150);},300);}
-function movMes(d){cM+=d;if(cM>11){cM=0;cY++;}if(cM<0){cM=11;cY--;}renderCal();}
 
-// ══ ANDREA HISTORIAL ══
+function irADia(k){
+  fechaActiva.hoy=k;fechaActiva.reg=k;fechaActiva.wc=k;fechaActiva.soc=k;
+  goTo('hoy',document.querySelector('.nb2'));
+  setTimeout(()=>renderHoyConFecha(k),100);
+}
+
+function movMes(d){cM+=d;if(cM>11){cM=0;cY++;}if(cM<0){cM=11;cY--;}renderCal();}
+function verAndrea(k){goTo('andrea',document.querySelector('.nb2:nth-child(7)'));setTimeout(()=>{andTab('diario');setTimeout(()=>{const el=document.getElementById('and-'+k);if(el)el.scrollIntoView({behavior:'smooth'});},150);},300);}
+
+// ══ ANDREA ══
 function renderAndreaDiario(){
   const data=load();const lista=document.getElementById('and-list');
-  if(!lista) return;
+  if(!lista)return;
   const ents=Object.entries(data).filter(([k,v])=>v.andrea||v.diario).sort((a,b)=>b[0].localeCompare(a[0]));
   if(!ents.length){lista.innerHTML='<div class="empty"><div class="empty-i">💜</div>Sin reflexiones aún</div>';return;}
   const emj={1:'😔',2:'😕',3:'😐',4:'🙂',5:'😊'};
   lista.innerHTML=ents.map(([k,v])=>{
-    const[y,m,d]=k.split('-');
-    const texto=v.andrea||v.diario||'';
+    const[y,m,d]=k.split('-');const texto=v.andrea||v.diario||'';
     return`<div class="and-item" id="and-${k}" onclick="this.querySelector('.and-full').classList.toggle('show')">
       <div class="and-fecha"><span>${parseInt(d)} ${MESES[parseInt(m)-1]} ${y}</span>${v.humor?`<span>${emj[v.humor]}</span>`:''}</div>
       <div class="and-txt">${texto.slice(0,80)}${texto.length>80?'…':''}</div>
-      <div class="and-full">
-        ${v.andrea?`<div class="and-txt"><strong>Deberes Andrea:</strong><br>${v.andrea}</div>`:''}
-        ${v.diario?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:.78rem;color:#445;">📝 ${v.diario}</div>`:''}
-      </div>
+      <div class="and-full">${v.andrea?`<div class="and-txt"><strong>Deberes Andrea:</strong><br>${v.andrea}</div>`:''} ${v.diario?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--line);font-size:.78rem;color:#445;">📝 ${v.diario}</div>`:''}</div>
     </div>`;
   }).join('');
 }
-
-function renderAndrea(){
-  // Solo renderiza tareas al entrar, sin tocar los tabs
-  renderTareasAndrea();
-}
+function renderAndrea(){ renderTareasAndrea(); }
 
 // ══ IA ══
 const FRASES_HOY=FRASES[new Date().getDate()%FRASES.length];
@@ -1590,36 +1502,26 @@ function generarInforme(){
   if(infPeriodo==='dia'){dias=[today()];}
   else if(infPeriodo==='sem'){for(let i=6;i>=0;i--){const d=new Date(n);d.setDate(n.getDate()-i);dias.push(key(d));}}
   else{for(let i=0;i<n.getDate();i++){const d=new Date(n);d.setDate(n.getDate()-i);dias.push(key(d));}}
-  
   let resumen='';
   dias.forEach(k=>{
     const e=data[k];if(!e)return;
     const[y,m,d]=k.split('-');
     resumen+='\n--- '+parseInt(d)+' '+MESES[parseInt(m)-1]+' ---\n';
-    if(e.humor)resumen+=`Estado: ${['','Mal','Regular','Neutro','Bien','Genial'][e.humor]}\n`;
-    if(e.diario)resumen+=`Diario: ${e.diario.slice(0,200)}\n`;
-    if(e.andrea)resumen+=`Andrea: ${e.andrea.slice(0,200)}\n`;
-    if(e.reg){const r=e.reg;if(r.agua)resumen+=`Agua: ${r.agua} vasos\n`;if(r.pasos)resumen+=`Pasos: ${r.pasos}\n`;if(r.hEst)resumen+=`Estudio: ${r.hEst}h\n`;if(r.st_dia)resumen+=`Valoración: ${r.st_dia}/5\n`;if(r.n_mejor)resumen+=`Lo mejor: ${r.n_mejor}\n`;if(r.n_grat)resumen+=`Gratitud: ${r.n_grat}\n`;}
-    if(e.social?.conexiones?.length)resumen+=`Socialización: ${e.social.conexiones.join(', ')}\n`;
-    if(e.tarot?.carta)resumen+=`Carta: ${e.tarot.carta}\n`;
-    if(e.eventos?.length)resumen+=`Eventos: ${e.eventos.map(ev=>(ev.done?'✓ ':'● ')+ev.txt).join(', ')}\n`;
+    if(e.humor)resumen+='Estado: '+['','Mal','Regular','Neutro','Bien','Genial'][e.humor]+'\n';
+    if(e.diario)resumen+='Diario: '+e.diario.slice(0,200)+'\n';
+    if(e.andrea)resumen+='Andrea: '+e.andrea.slice(0,200)+'\n';
+    if(e.reg){const r=e.reg;if(r.agua)resumen+='Agua: '+r.agua+'v\n';if(r.pasos)resumen+='Pasos: '+r.pasos+'\n';if(r.hEst)resumen+='Estudio: '+r.hEst+'h\n';if(r.st_dia)resumen+='Valoración: '+r.st_dia+'/5\n';if(r.n_mejor)resumen+='Lo mejor: '+r.n_mejor+'\n';if(r.n_grat)resumen+='Gratitud: '+r.n_grat+'\n';}
+    if(e.social?.conexiones?.length)resumen+='Social: '+e.social.conexiones.join(', ')+'\n';
+    if(e.tarot?.carta)resumen+='Carta: '+e.tarot.carta+'\n';
   });
-
   const periodo=infPeriodo==='dia'?'de hoy':infPeriodo==='sem'?'de esta semana':'de este mes';
   document.getElementById('inf-result').textContent='Generando tu informe…';
-  
-  fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-6',max_tokens:1000,
-      system:`Eres la guía y terapeuta personal de Rebeca, una mujer española que trabaja como vigilante de seguridad en Torraspapel (turnos de 12h día o noche), estudia Grado en Derecho en Calatayud, va a terapia con Andrea su psicóloga, tiene una perra llamada Furia, está en pareja con Marco, le encantan el tarot y la numerología, y está creando hábitos saludables. Habla siempre en femenino, en español, con calidez, empatía y motivación. Da consejos prácticos y específicos. Mezcla perspectiva terapéutica con coaching de hábitos y un toque espiritual cuando sea relevante.`,
-      messages:[{role:'user',content:`Analiza mis datos ${periodo} y dame un informe personalizado con: reflexión emocional, logros destacados, áreas de mejora, y un plan concreto para los próximos días. Mis datos:\n${resumen||'Sin datos registrados aún para este período.'}`}]
-    })
-  }).then(r=>r.json()).then(d=>{
-    const txt=d.content?.[0]?.text||'Error generando el informe. Inténtalo de nuevo.';
-    document.getElementById('inf-result').textContent=txt;
-  }).catch(()=>document.getElementById('inf-result').textContent='Error de conexión. Comprueba tu conexión a internet.');
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,
+      system:'Eres la guía y terapeuta personal de Rebeca, una mujer española que trabaja como vigilante de seguridad en turnos de 12h, estudia Grado en Derecho, va a terapia con Andrea, tiene una perra Furia y pareja Marco. Habla en femenino, español, con calidez y motivación.',
+      messages:[{role:'user',content:'Analiza mis datos '+periodo+' y dame un informe con reflexión emocional, logros y plan concreto:\n'+resumen}]})
+  }).then(r=>r.json()).then(d=>{document.getElementById('inf-result').textContent=d.content?.[0]?.text||'Error';})
+  .catch(()=>document.getElementById('inf-result').textContent='Error de conexión.');
 }
 
 function sendChat(){
@@ -1630,30 +1532,21 @@ function sendChat(){
   msgs.innerHTML+=`<div class="msg ia" id="msg-typing"><div class="msg-avatar">🌱</div><div class="msg-bubble" style="color:var(--muted);font-style:italic;">Escribiendo…</div></div>`;
   msgs.scrollTop=msgs.scrollHeight;
   chatHist.push({role:'user',content:txt});
-  
   const data=load();const k=today();const hoy=data[k];
-  let ctx='';if(hoy){if(hoy.humor)ctx+=`Mi estado hoy: ${['','Mal','Regular','Neutro','Bien','Genial'][hoy.humor]}. `;if(hoy.andrea)ctx+=`Mi reflexión de Andrea: ${hoy.andrea.slice(0,150)}. `;}
-
-  fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-6',max_tokens:500,
-      system:`Eres la guía y compañera de reflexión de Rebeca. Contexto de hoy: ${ctx||'Sin datos de hoy aún.'} Sé empática, cálida, directa. Respuestas cortas (máx 4 frases) salvo que pida más. Español, femenino.`,
-      messages:chatHist.slice(-10)
-    })
+  let ctx='';if(hoy){if(hoy.humor)ctx+='Mi estado hoy: '+['','Mal','Regular','Neutro','Bien','Genial'][hoy.humor]+'. ';if(hoy.andrea)ctx+='Mi reflexión: '+hoy.andrea.slice(0,150)+'.';}
+  fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:500,
+      system:'Eres la guía de Rebeca. Contexto: '+ctx+' Sé empática, cálida. Respuestas cortas. Español, femenino.',
+      messages:chatHist.slice(-10)})
   }).then(r=>r.json()).then(d=>{
-    const resp=d.content?.[0]?.text||'No pude responder, inténtalo de nuevo.';
+    const resp=d.content?.[0]?.text||'No pude responder.';
     chatHist.push({role:'assistant',content:resp});
     document.getElementById('msg-typing').outerHTML=`<div class="msg ia"><div class="msg-avatar">🌱</div><div class="msg-bubble">${resp}</div></div>`;
     msgs.scrollTop=msgs.scrollHeight;
     document.getElementById('chat-send').disabled=false;
-  }).catch(()=>{document.getElementById('msg-typing').outerHTML=`<div class="msg ia"><div class="msg-avatar">🌱</div><div class="msg-bubble" style="color:var(--red)">Error de conexión 😔</div></div>`;document.getElementById('chat-send').disabled=false;});
+  }).catch(()=>{document.getElementById('msg-typing').outerHTML=`<div class="msg ia"><div class="msg-avatar">🌱</div><div class="msg-bubble" style="color:var(--red)">Error 😔</div></div>`;document.getElementById('chat-send').disabled=false;});
 }
-document.addEventListener('DOMContentLoaded',()=>{
-  const ci=document.getElementById('chat-inp');
-  if(ci)ci.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}});
-});
+document.addEventListener('DOMContentLoaded',()=>{const ci=document.getElementById('chat-inp');if(ci)ci.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}});});
 
 // ══ STATS ══
 function renderStats(){
@@ -1682,133 +1575,357 @@ function renderStats(){
   }).join('');
 }
 
-// ══ EXPORTAR / IMPORTAR ══
+// ══ EXPORT / IMPORT ══
 function exportarDatos(){
-  const data = load();
-  const total = Object.keys(data).length;
-  if(!total){ toast('No hay datos que exportar'); return; }
-  
-  const exportObj = {
-    version: 'rebeca_v1',
-    exportado: new Date().toISOString(),
-    datos: data
+  const data=load();const total=Object.keys(data).length;
+  if(!total){toast('No hay datos que exportar');return;}
+  const exportObj={version:'rebeca_v1',exportado:new Date().toISOString(),datos:data};
+  const blob=new Blob([JSON.stringify(exportObj,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download='rebeca-datos-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  document.getElementById('backup-estado').textContent='✓ Exportados '+total+' días';
+  toast('✓ Datos exportados');
+}
+function importarDatos(inp){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const obj=JSON.parse(e.target.result);
+      let datos=obj.version&&obj.datos?obj.datos:obj;
+      const claves=Object.keys(datos);
+      const pareceFechas=claves.some(k=>/^\d{4}-\d{2}-\d{2}$/.test(k));
+      if(!pareceFechas){toast('⚠️ Archivo no válido');return;}
+      const existentes=load();const fusionados=Object.assign({},datos,existentes);
+      save(fusionados);
+      const total=Object.keys(fusionados).length;
+      document.getElementById('backup-estado').textContent='✓ Importados — '+total+' días';
+      toast('✓ Datos importados: '+total+' días');renderStats();
+    }catch(err){toast('⚠️ Error al leer el archivo');}
   };
-  
-  const blob = new Blob([JSON.stringify(exportObj, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const fecha = new Date().toISOString().slice(0,10);
-  a.href = url;
-  a.download = `rebeca-datos-${fecha}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  
-  document.getElementById('backup-estado').textContent = `✓ Exportados ${total} días de datos`;
-  toast('✓ Datos exportados correctamente');
+  reader.readAsText(file);inp.value='';
 }
 
-function importarDatos(inp){
-  const file = inp.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
+// ══ NAV ══
+function goTo(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb2').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  const renders={andrea:renderAndrea,stats:renderStats,calendario:renderCal,registro:renderReg,wc:renderWC,social:renderSocial,tarot:renderTarot,ia:renderIA};
+  if(renders[id])renders[id]();
+}
+
+// ══ INIT ══
+// init fecha pickers
+(function initFechaPickers(){
+  const t = today();
+  ['hoy','reg','wc','soc'].forEach(tab=>{
+    const el = document.getElementById(tab+'-fecha-pick');
+    if(el){ el.value = t; el.max = t; }
+  });
+  ['tareas','emo','diario','wc','habitos'].forEach(k=>{
+    const el=document.getElementById('inf-'+k);
+    const pdf=document.getElementById('pdf-'+k);
+    if(el&&pdf) el.addEventListener('change',()=>pdf.checked=el.checked);
+  });
+})();
+renderHoy();
+renderCal();
+renderIA();
+setTimeout(insertarBotonesVoz, 500);
+
+// ══ VOZ INLINE ══
+let vozGrabando=false,vozRecorder=null,vozChunks=[],vozTargetId=null,vozStream=null,andAudioBlob=null;
+
+async function iniciarVozPara(tid){
+  if(vozGrabando&&vozTargetId===tid){vozRecorder?.stop();return;}
+  if(vozGrabando){vozRecorder?.stop();}
+  vozTargetId=tid;
+  try{
+    vozStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    vozRecorder=new MediaRecorder(vozStream);vozChunks=[];
+    vozRecorder.ondataavailable=e=>vozChunks.push(e.data);
+    vozRecorder.onstop=()=>{
+      vozStream.getTracks().forEach(t=>t.stop());vozGrabando=false;updateVozBtns();
+      const blob=new Blob(vozChunks,{type:'audio/webm'});
+      const r=new FileReader();
+      r.onload=e2=>{
+        const el=document.getElementById(tid);
+        if(el)el.value+=(el.value?'\n':'')+'[Audio grabado]';
+        toast('🎙️ Audio listo — escribe lo que has dicho');
+      };r.readAsDataURL(blob);
+    };
+    vozRecorder.start();vozGrabando=true;updateVozBtns();
+    toast('🔴 Grabando... toca de nuevo para parar');
+  }catch(e){toast('⚠️ Activa el micrófono en Ajustes');}
+}
+function updateVozBtns(){
+  document.querySelectorAll('.voz-inline-btn').forEach(b=>{
+    const tid=b.dataset.target;
+    if(tid===vozTargetId&&vozGrabando){b.classList.add('rec');b.innerHTML='🔴 Parar';}
+    else{b.classList.remove('rec');b.innerHTML='🎙️ Voz';}
+  });
+}
+function insertarBotonesVoz(){
+  document.querySelectorAll('textarea').forEach(ta=>{
+    if(!ta.id||ta.parentNode.querySelector('.voz-inline'))return;
+    const div=document.createElement('div');div.className='voz-inline';
+    div.innerHTML=`<button class="voz-inline-btn" data-target="${ta.id}" onclick="iniciarVozPara('${ta.id}')">🎙️ Voz</button>`;
+    ta.parentNode.insertBefore(div,ta.nextSibling);
+  });
+}
+
+// ══ ANDREA — funciones que faltaban ══
+let andTareaAbierta=null;
+
+function toggleTarea(id){andTareaAbierta=andTareaAbierta===id?null:id;renderTareasAndrea();}
+
+function toggleCompletada(id){
+  const data=load();const t=data._andrea?.tareas?.find(t=>t.id===id);
+  if(t){t.completada=!t.completada;save(data);renderTareasAndrea();}
+}
+
+function guardarComentario(tareaId){
+  const txt=document.getElementById('com-txt-'+tareaId)?.value?.trim();
+  if(!txt){toast('Escribe algo primero');return;}
+  const data=load();const t=data._andrea?.tareas?.find(t=>t.id===tareaId);
+  if(!t)return;if(!t.comentarios)t.comentarios=[];
+  const n=new Date();
+  t.comentarios.push({texto:txt,fecha:n.toLocaleDateString('es-ES',{day:'numeric',month:'short'}),hora:n.toTimeString().slice(0,5)});
+  save(data);document.getElementById('com-txt-'+tareaId).value='';renderTareasAndrea();toast('✓ Nota guardada 💜');
+}
+
+function adjuntarFotoTarea(tareaId,inp){
+  const file=inp.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const data=load();const t=data._andrea?.tareas?.find(t=>t.id===tareaId);
+    if(!t)return;if(!t.comentarios)t.comentarios=[];
+    const n=new Date();
+    t.comentarios.push({imagen:e.target.result,fecha:n.toLocaleDateString('es-ES',{day:'numeric',month:'short'}),hora:n.toTimeString().slice(0,5),tipo:'foto'});
+    save(data);renderTareasAndrea();toast('✓ Foto adjuntada');
+  };r.readAsDataURL(file);inp.value='';
+}
+
+function eliminarTarea(id){
+  if(!confirm('¿Eliminar esta tarea?'))return;
+  const data=load();
+  if(data._andrea?.tareas){data._andrea.tareas=data._andrea.tareas.filter(t=>t.id!==id);save(data);andTareaAbierta=null;renderTareasAndrea();toast('Tarea eliminada');}
+}
+
+async function toggleGrabacion(tareaId){
+  const btn=document.getElementById('voz-btn-'+tareaId);
+  const lbl=document.getElementById('voz-lbl-'+tareaId);
+  if(!vozGrabando){
     try{
-      const obj = JSON.parse(e.target.result);
-      let datos;
-      // Formato nuevo con wrapper
-      if(obj.version && obj.datos) datos = obj.datos;
-      // Formato viejo directo
-      else datos = obj;
-      
-      // Validar que parece datos de Rebeca (fechas como claves)
-      const claves = Object.keys(datos);
-      const pareceFechas = claves.some(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
-      if(!pareceFechas){ toast('⚠️ El archivo no parece válido'); return; }
-      
-      // Fusionar con datos existentes (no sobreescribir, añadir)
-      const existentes = load();
-      const fusionados = Object.assign({}, datos, existentes); // los existentes tienen prioridad
-      save(fusionados);
-      
-      const total = Object.keys(fusionados).length;
-      document.getElementById('backup-estado').textContent = `✓ Importados — ${total} días en total`;
-      toast(`✓ Datos importados: ${total} días`);
-      renderStats();
-    } catch(err){
-      toast('⚠️ Error al leer el archivo');
-      console.error(err);
-    }
-  };
-  reader.readAsText(file);
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      const mr=new MediaRecorder(stream);const chunks=[];
+      mr.ondataavailable=e=>chunks.push(e.data);
+      mr.onstop=()=>{
+        andAudioBlob=new Blob(chunks,{type:'audio/webm'});
+        const url=URL.createObjectURL(andAudioBlob);
+        const audio=document.getElementById('voz-audio-'+tareaId);
+        if(audio){audio.src=url;document.getElementById('voz-preview-'+tareaId).style.display='block';}
+        stream.getTracks().forEach(t=>t.stop());
+      };
+      mr.start();vozGrabando=true;
+      if(btn)btn.classList.add('grabando');
+      if(lbl)lbl.textContent='⏹ Parar grabación';
+      vozRecorder=mr;
+    }catch(e){toast('⚠️ Activa el micrófono');}
+  }else{
+    vozRecorder?.stop();vozGrabando=false;
+    if(btn)btn.classList.remove('grabando');
+    if(lbl)lbl.textContent='🎙️ Grabar nota de voz';
+  }
+}
+
+function guardarAudio(tareaId){
+  if(!andAudioBlob){toast('No hay audio');return;}
+  const r=new FileReader();
+  r.onload=e=>{
+    const data=load();const t=data._andrea?.tareas?.find(t=>t.id===tareaId);
+    if(!t)return;if(!t.comentarios)t.comentarios=[];
+    const n=new Date();
+    t.comentarios.push({audio:e.target.result,fecha:n.toLocaleDateString('es-ES',{day:'numeric',month:'short'}),hora:n.toTimeString().slice(0,5),tipo:'voz 🎙️'});
+    save(data);andAudioBlob=null;
+    document.getElementById('voz-preview-'+tareaId).style.display='none';
+    renderTareasAndrea();toast('✓ Audio guardado 🎙️');
+  };r.readAsDataURL(andAudioBlob);
+}
+
+function descartarAudio(tareaId){
+  andAudioBlob=null;
+  document.getElementById('voz-preview-'+tareaId).style.display='none';
+}
+
+// NUMEROLOGIA
+function renderNumChips(){
+  const el=document.getElementById('num-chips-display');
+  if(!el)return;
+  el.innerHTML=(numsHoy||[]).map((n,i)=>`<span class="num-chip" onclick="numsHoy.splice(${i},1);renderNumChips()" style="cursor:pointer;">${n} ✕</span>`).join('');
+}
+
+// ══ REGISTRO ══
+// variables ya declaradas arriba
+
+function renderReg(){ renderRegConFecha(fechaActiva.reg||today()); }
+function renderRegConFecha(k){
+  k=k||today();
+  const parts=k.split('-');const nd=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+  const el=document.getElementById('reg-tit');if(el)el.textContent=nd.getDate()+' de '+MESES[nd.getMonth()];
+  const picker=document.getElementById('reg-fecha-pick');if(picker&&picker.value!==k)picker.value=k;
+  const banner=document.getElementById('reg-banner');if(banner)banner.classList.toggle('show',k!==today());
+  const data=load();const r=data[k]?.reg||{};
+  fotos=r.fotos||[];renderFotoGrid();
+  ['peso','agua','pasos','hEst','insta','tiktok','compras','panTotal','minEj','sueno'].forEach(f=>{
+    const el=document.getElementById('v-'+f);if(el&&r[f]!==undefined)el.value=r[f];
+  });
+  const anNum=document.getElementById('v-ansiedad-num');if(anNum&&r.ansiedad_num)anNum.value=r.ansiedad_num;
+  ynS={};['past','ej','lee','apr'].forEach(f=>{if(r['yn_'+f])yn(f,r['yn_'+f]);});
+  starS={};['ansiedad','dia'].forEach(f=>{if(r['st_'+f])star(f,r['st_'+f]);});
+  ejS=new Set(r.chips||[]);
+  ['caminar','furia','cardio','fuerza','yoga','otro'].forEach(t=>{document.getElementById('ej-'+t)?.classList.toggle('on',ejS.has(t));});
+  ['cuerpo','ej','mente','pan','mejor','mejorar','grat'].forEach(f=>{const el=document.getElementById('n-'+f);if(el)el.value=r['n_'+f]||'';});
+}
+function guardarReg(){
+  const k=fechaActiva.reg||today();const data=load();if(!data[k])data[k]={};
+  const r={};
+  ['peso','agua','pasos','hEst','insta','tiktok','compras','panTotal','minEj','sueno'].forEach(f=>{const el=document.getElementById('v-'+f);if(el)r[f]=parseFloat(el.value)||0;});
+  const anNum=document.getElementById('v-ansiedad-num');if(anNum&&anNum.value)r.ansiedad_num=parseInt(anNum.value);
+  ['past','ej','lee','apr'].forEach(f=>{if(ynS[f])r['yn_'+f]=ynS[f];});
+  ['ansiedad','dia'].forEach(f=>{if(starS[f])r['st_'+f]=starS[f];});
+  Object.keys(evalS).forEach(k2=>{if(evalS[k2])r['ev_'+k2]=true;});
+  r.chips=[...ejS];
+  ['cuerpo','ej','mente','pan','mejor','mejorar','grat'].forEach(f=>{const el=document.getElementById('n-'+f);if(el)r['n_'+f]=el.value;});
+  r.fotos=fotos.slice(0,3);
+  data[k].reg=r;data[k].ts=Date.now();save(data);
+  toast(k===today()?'✓ Registro guardado 💪':'✓ Guardado para el '+k.split('-').reverse().slice(0,2).join('/'));
+}
+function adj(c,d){const el=document.getElementById('v-'+c);if(!el)return;let v=parseFloat(el.value)||0;el.value=Math.max(0,Math.round((v+d)*10)/10);}
+function yn(c,v){ynS[c]=v;['si','no'].forEach(s=>{const el=document.getElementById('yn-'+c+'-'+s);if(el){el.classList.remove('on');if(s===v)el.classList.add('on');}});}
+function star(c,v){starS[c]=v;document.querySelectorAll('#s-'+c+' .str').forEach(b=>b.classList.toggle('on',parseInt(b.dataset.v)<=v));}
+function chip(t){ejS.has(t)?ejS.delete(t):ejS.add(t);document.getElementById('ej-'+t).classList.toggle('on',ejS.has(t));}
+function toggleEval(c,t){const k=c+'_'+t,other=c+'_'+(t==='pos'?'neg':'pos');if(evalS[k]){delete evalS[k];document.getElementById((t==='pos'?'ep':'en')+'-'+c)?.classList.remove('on');}else{evalS[k]=true;evalS[other]=false;document.getElementById((t==='pos'?'ep':'en')+'-'+c)?.classList.add('on');document.getElementById((t==='pos'?'en':'ep')+'-'+c)?.classList.remove('on');}}
+
+// ══ SOCIAL ══
+// socS ya declarada en estado global
+// SOC_ITEMS ya declarado
+function toggleSoc(s){socS.has(s)?socS.delete(s):socS.add(s);document.getElementById('soc-'+s)?.classList.toggle('on',socS.has(s));}
+function setSocEval(id,val){const k=fechaActiva.soc||today();const data=load();if(!data[k])data[k]={};if(!data[k].social)data[k].social={};data[k].social['eval_'+id]=val;save(data);renderSocNotas();}
+function renderSocNotas(){
+  const area=document.getElementById('soc-notas-area');if(!area)return;
+  const data=load();const k=fechaActiva.soc||today();const s=data[k]?.social||{};
+  area.innerHTML=SOC_ITEMS.map(item=>{
+    const val=s['eval_'+item.id]||'';const nota=s['n_'+item.id]||'';
+    return`<div style="border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+        <span style="font-size:.85rem;font-weight:700;">${item.emoji} ${item.lbl}</span>
+        <div style="display:flex;gap:4px;">
+          <button onclick="setSocEval('${item.id}','pos')" style="border:1.5px solid ${val==='pos'?'var(--green)':'var(--line)'};background:${val==='pos'?'#d1fae5':'#fff'};border-radius:7px;padding:3px 8px;cursor:pointer;font-size:.85rem;">😊</button>
+          <button onclick="setSocEval('${item.id}','neg')" style="border:1.5px solid ${val==='neg'?'var(--red)':'var(--line)'};background:${val==='neg'?'#fee2e2':'#fff'};border-radius:7px;padding:3px 8px;cursor:pointer;font-size:.85rem;">😟</button>
+          <button onclick="setSocEval('${item.id}','')" style="border:1.5px solid var(--line);background:#fff;border-radius:7px;padding:3px 8px;cursor:pointer;font-size:.72rem;color:var(--muted);">✕</button>
+        </div>
+      </div>
+      <textarea id="n-soc-${item.id}" rows="2" placeholder="¿Cómo ha ido con ${item.lbl.toLowerCase()}?" style="width:100%;border:1.5px solid var(--line);border-radius:7px;padding:7px 9px;font-family:'Inter',sans-serif;font-size:.8rem;resize:none;background:var(--soft);outline:none;color:var(--ink);">${nota}</textarea>
+    </div>`;
+  }).join('');
+}
+function renderSocial(){ renderSocConFecha(fechaActiva.soc||today()); }
+function renderSocConFecha(k){
+  k=k||today();
+  const picker=document.getElementById('soc-fecha-pick');if(picker&&picker.value!==k)picker.value=k;
+  const banner=document.getElementById('soc-banner');if(banner)banner.classList.toggle('show',k!==today());
+  const data=load();const s=data[k]?.social||{};
+  socS=new Set(s.conexiones||[]);
+  SOC_ITEMS.forEach(c=>document.getElementById('soc-'+c.id)?.classList.toggle('on',socS.has(c.id)));
+  renderSocNotas();
+}
+function guardarSocial(){
+  const k=fechaActiva.soc||today();const data=load();if(!data[k])data[k]={};
+  const s=data[k].social||{};s.conexiones=[...socS];
+  SOC_ITEMS.forEach(item=>{const el=document.getElementById('n-soc-'+item.id);if(el)s['n_'+item.id]=el.value;});
+  data[k].social=s;save(data);toast('✓ Socialización guardada 🤝');
+}
+
+// ══ TAROT ══
+// numsHoy ya declarada en estado global
+function renderTarot(){
+  const k=today();const data=load();const t=data[k]?.tarot||{};
+  const ic=document.getElementById('tarot-inp-carta');if(ic)ic.value=t.carta||'';
+  const is=document.getElementById('tarot-inp-sig');if(is)is.value=t.significado||'';
+  const io=document.getElementById('tarot-inp-oraculo');if(io)io.value=t.oraculo||'';
+  const inn=document.getElementById('tarot-inp-num-nota');if(inn)inn.value=t.numNota||'';
+  numsHoy=t.nums||[];renderNumChips();
+  if(t.carta){const tn=document.getElementById('tarot-nombre');if(tn)tn.textContent=t.carta;const ts=document.getElementById('tarot-sig');if(ts)ts.textContent=t.significado||'';}
+}
+function addNum(){const inp=document.getElementById('num-inp');const v=inp.value.trim();if(!v)return;numsHoy.push(v);inp.value='';renderNumChips();}
+function guardarTarot(){
+  const k=today();const data=load();if(!data[k])data[k]={};
+  const carta=document.getElementById('tarot-inp-carta')?.value||'';
+  const t={carta,significado:document.getElementById('tarot-inp-sig')?.value||'',oraculo:document.getElementById('tarot-inp-oraculo')?.value||'',nums:numsHoy,numNota:document.getElementById('tarot-inp-num-nota')?.value||''};
+  data[k].tarot=t;save(data);
+  if(carta){const tn=document.getElementById('tarot-nombre');if(tn)tn.textContent=carta;}
+  toast('✓ Tarot guardado ✨');
+}
+
+// ══ FOTO ══
+function cargarFotoDesdeDataURL(dataURL,mime){
+  fotoBase64=dataURL.split(',')[1];fotoMime=mime||'image/jpeg';
+  const img=document.getElementById('foto-preview-img');if(img)img.src=dataURL;
+  const prev=document.getElementById('foto-preview');if(prev)prev.style.display='block';
+  const btn=document.getElementById('btn-analizar');if(btn)btn.style.display='block';
+  const est=document.getElementById('foto-estado');if(est)est.textContent='✓ Imagen lista — pulsa Analizar';
+  const box=document.getElementById('ia-result-box');if(box)box.style.display='none';
+}
+function addFotoDesdeInput(inp){
+  const file=inp.files[0];if(!file)return;
+  if(file.type==='application/pdf'){
+    const r=new FileReader();r.onload=e=>{fotoBase64=e.target.result.split(',')[1];fotoMime='application/pdf';
+    const btn=document.getElementById('btn-analizar');if(btn)btn.style.display='block';
+    const est=document.getElementById('foto-estado');if(est)est.textContent='📄 PDF listo';};r.readAsDataURL(file);
+  }else{const r=new FileReader();r.onload=e=>cargarFotoDesdeDataURL(e.target.result,file.type);r.readAsDataURL(file);}
   inp.value='';
 }
+function handleDrop(e){e.preventDefault();const file=e.dataTransfer.files[0];if(file&&(file.type.startsWith('image/')||file.type==='application/pdf'))addFotoDesdeInputFile(file);}
+function addFotoDesdeInputFile(file){const r=new FileReader();r.onload=e=>cargarFotoDesdeDataURL(e.target.result,file.type);r.readAsDataURL(file);}
+function borrarFoto(){fotoBase64=null;fotoMime='image/jpeg';['foto-preview','ia-result-box'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});['btn-analizar','foto-estado'].forEach(id=>{const el=document.getElementById(id);if(el){if(id==='btn-analizar')el.style.display='none';else el.textContent='';}});}
 
-// ══ ANDREA COMPLETO ══
-let andTipoSel = null;
-let andInfPeriodo = 'sem';
-let andGrabando = false;
-let andMediaRecorder = null;
-let andAudioChunks = [];
-let andTareaAbierta = null; // id de la tarea expandida
+document.addEventListener('paste',function(e){
+  if(!document.getElementById('page-registro')?.classList.contains('active'))return;
+  const items=e.clipboardData?.items||[];
+  for(const item of items){if(item.type.startsWith('image/')){const r=new FileReader();r.onload=ev=>cargarFotoDesdeDataURL(ev.target.result,item.type);r.readAsDataURL(item.getAsFile());toast('📷 Imagen pegada');return;}}
+});
 
-function andTab(tab){
-  ['tareas','diario','informe'].forEach(t=>{
-    document.getElementById('and-'+t).style.display = t===tab?'block':'none';
-    document.getElementById('atab-'+t).classList.toggle('on', t===tab);
-  });
-  if(tab==='diario') renderAndreaDiario();
-  if(tab==='tareas') renderTareasAndrea();
-}
+// ══ ANDREA TAREAS ══
+const TIPO_EMOJI={yoga:'🧘',meditacion:'🌬️',carta:'✍️',respiracion:'💨',rodillo:'🔵',reflexion:'💭',ejercicio:'🏃',otro:'➕'};
+let andTipoSel=null;
+let andInfPeriodo='sem';
 
-function chipAndTipo(t){
-  andTipoSel = andTipoSel===t ? null : t;
-  document.querySelectorAll('#and-tipo-chips .chip').forEach(b=>b.classList.remove('on'));
-  if(andTipoSel) document.getElementById('atipo-'+andTipoSel)?.classList.add('on');
-}
+function chipAndTipo(t){andTipoSel=andTipoSel===t?null:t;document.querySelectorAll('#and-tipo-chips .chip').forEach(b=>b.classList.remove('on'));if(andTipoSel)document.getElementById('atipo-'+andTipoSel)?.classList.add('on');}
 
 function crearTareaAndrea(){
-  const titulo = document.getElementById('and-tarea-titulo').value.trim();
-  if(!titulo){ toast('Escribe un título para la tarea'); return; }
-  const data = load();
-  if(!data._andrea) data._andrea = {};
-  if(!data._andrea.tareas) data._andrea.tareas = [];
-  const tarea = {
-    id: Date.now(),
-    titulo,
-    tipo: andTipoSel,
-    desc: document.getElementById('and-tarea-desc').value,
-    creada: new Date().toISOString(),
-    completada: false,
-    comentarios: [],
-    medias: []
-  };
-  data._andrea.tareas.unshift(tarea);
+  const titulo=document.getElementById('and-tarea-titulo')?.value.trim();
+  if(!titulo){toast('Escribe un título');return;}
+  const data=load();if(!data._andrea)data._andrea={};if(!data._andrea.tareas)data._andrea.tareas=[];
+  data._andrea.tareas.unshift({id:Date.now(),titulo,tipo:andTipoSel,desc:document.getElementById('and-tarea-desc')?.value||'',creada:new Date().toISOString(),completada:false,comentarios:[],medias:[]});
   save(data);
-  document.getElementById('and-tarea-titulo').value='';
-  document.getElementById('and-tarea-desc').value='';
-  andTipoSel=null;
-  document.querySelectorAll('#and-tipo-chips .chip').forEach(b=>b.classList.remove('on'));
-  renderTareasAndrea();
-  toast('✓ Tarea creada 💜');
+  const ti=document.getElementById('and-tarea-titulo');if(ti)ti.value='';
+  const td=document.getElementById('and-tarea-desc');if(td)td.value='';
+  andTipoSel=null;document.querySelectorAll('#and-tipo-chips .chip').forEach(b=>b.classList.remove('on'));
+  renderTareasAndrea();toast('✓ Tarea creada 💜');
 }
 
-const TIPO_EMOJI={yoga:'🧘',meditacion:'🌬️',carta:'✍️',respiracion:'💨',rodillo:'🔵',reflexion:'💭',ejercicio:'🏃',otro:'➕'};
-
 function renderTareasAndrea(){
-  const data = load();
-  const tareas = data._andrea?.tareas || [];
-  const lista = document.getElementById('and-tareas-lista');
-  if(!tareas.length){
-    lista.innerHTML='<div class="empty"><div class="empty-i">💜</div>Aún no hay tareas.<br>Añade la primera arriba.</div>';
-    return;
-  }
-  lista.innerHTML = tareas.map((t,i)=>{
-    const fecha = new Date(t.creada).toLocaleDateString('es-ES',{day:'numeric',month:'short'});
-    const isOpen = andTareaAbierta === t.id;
-    return `
-    <div class="and-tarea ${t.completada?'completada':''}" id="tarea-${t.id}">
+  const data=load();const tareas=data._andrea?.tareas||[];
+  const lista=document.getElementById('and-tareas-lista');if(!lista)return;
+  if(!tareas.length){lista.innerHTML='<div class="empty"><div class="empty-i">💜</div>Sin tareas aún.<br>Añade la primera arriba.</div>';return;}
+  lista.innerHTML=tareas.map((t,i)=>{
+    const fecha=new Date(t.creada).toLocaleDateString('es-ES',{day:'numeric',month:'short'});
+    const isOpen=andTareaAbierta===t.id;
+    return`<div class="and-tarea ${t.completada?'completada':''}" id="tarea-${t.id}">
       <div class="and-tarea-head" onclick="toggleTarea(${t.id})">
         <div class="and-tarea-check ${t.completada?'done':''}" onclick="event.stopPropagation();toggleCompletada(${t.id})">${t.completada?'✓':''}</div>
         <div class="and-tarea-info">
@@ -1817,30 +1934,23 @@ function renderTareasAndrea(){
             ${t.tipo?`<span class="and-tarea-tipo">${TIPO_EMOJI[t.tipo]||'•'} ${t.tipo}</span>`:''}
             <span>${fecha}</span>
             ${t.comentarios?.length?`<span>💬 ${t.comentarios.length}</span>`:''}
-            ${t.completada?'<span style="color:var(--green);">✓ Hecha</span>':''}
+            ${t.completada?'<span style="color:var(--green)">✓ Hecha</span>':''}
           </div>
         </div>
-        <span style="color:var(--muted);font-size:.8rem;flex-shrink:0;">${isOpen?'▲':'▼'}</span>
+        <span style="color:var(--muted);font-size:.8rem;">${isOpen?'▲':'▼'}</span>
       </div>
-      ${isOpen ? `
-      <div class="and-tarea-body">
+      ${isOpen?`<div class="and-tarea-body">
         ${t.desc?`<div style="font-size:.8rem;color:var(--muted);margin-bottom:10px;padding:8px;background:var(--soft);border-radius:7px;">${t.desc}</div>`:''}
-
-        <!-- Comentarios previos -->
         <div id="coms-${t.id}">
-          ${(t.comentarios||[]).map((c,ci)=>`
-            <div class="and-comentario">
-              <div class="and-comentario-hora">${c.fecha} · ${c.hora}${c.tipo?' · '+c.tipo:''}</div>
-              ${c.texto?`<div>${c.texto}</div>`:''}
-              ${c.audio?`<audio controls src="${c.audio}" style="width:100%;margin-top:4px;"></audio>`:''}
-              ${c.imagen?`<img src="${c.imagen}" style="width:100%;border-radius:6px;margin-top:4px;">`:''}
-            </div>`).join('')}
+          ${(t.comentarios||[]).map(c=>`<div class="and-comentario">
+            <div class="and-comentario-hora">${c.fecha} · ${c.hora}${c.tipo?' · '+c.tipo:''}</div>
+            ${c.texto?`<div>${c.texto}</div>`:''}
+            ${c.audio?`<audio controls src="${c.audio}" style="width:100%;margin-top:4px;"></audio>`:''}
+            ${c.imagen?`<img src="${c.imagen}" style="width:100%;border-radius:6px;margin-top:4px;">`:''}
+          </div>`).join('')}
         </div>
-
-        <!-- NUEVA NOTA DE VOZ -->
         <button class="voz-btn" id="voz-btn-${t.id}" onclick="toggleGrabacion(${t.id})">
-          <span class="voz-icon">🎙️</span>
-          <span id="voz-lbl-${t.id}">Grabar nota de voz</span>
+          <span class="voz-icon">🎙️</span><span id="voz-lbl-${t.id}">Grabar nota de voz</span>
         </button>
         <div id="voz-preview-${t.id}" style="display:none;margin-bottom:8px;">
           <audio id="voz-audio-${t.id}" controls style="width:100%;"></audio>
@@ -1849,626 +1959,28 @@ function renderTareasAndrea(){
             <button onclick="descartarAudio(${t.id})" style="flex:1;padding:7px;background:var(--soft);border:1px solid var(--line);border-radius:7px;font-family:'Inter',sans-serif;font-size:.75rem;cursor:pointer;">✕ Descartar</button>
           </div>
         </div>
-
-        <!-- ADJUNTAR FOTO -->
         <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px dashed var(--line);border-radius:9px;cursor:pointer;font-size:.8rem;color:var(--muted);margin-bottom:8px;background:var(--soft);">
-          📎 Adjuntar foto / imagen
+          📎 Adjuntar foto
           <input type="file" accept="image/*" style="display:none;" onchange="adjuntarFotoTarea(${t.id},this)">
         </label>
-
-        <!-- ESCRIBIR COMENTARIO -->
-        <textarea id="com-txt-${t.id}" rows="3" placeholder="Escribe aquí — cómo te ha ido, cómo te has sentido, lo que quieras..."></textarea>
+        <textarea id="com-txt-${t.id}" rows="3" placeholder="Escribe aquí — cómo te ha ido, cómo te has sentido..."></textarea>
         <button class="btn" style="margin-top:6px;" onclick="guardarComentario(${t.id})">Guardar nota</button>
         <button onclick="eliminarTarea(${t.id})" style="width:100%;margin-top:6px;padding:8px;background:none;border:1px solid #fee2e2;color:var(--red);border-radius:8px;font-family:'Inter',sans-serif;font-size:.75rem;cursor:pointer;">🗑 Eliminar tarea</button>
-      </div>` : ''}
+      </div>`:''}
     </div>`;
   }).join('');
 }
 
-function toggleTarea(id){
-  andTareaAbierta = andTareaAbierta===id ? null : id;
-  renderTareasAndrea();
-}
-
-function toggleCompletada(id){
-  const data=load();
-  const t=data._andrea?.tareas?.find(t=>t.id===id);
-  if(t){ t.completada=!t.completada; save(data); renderTareasAndrea(); }
-}
-
-function guardarComentario(tareaId){
-  const txt = document.getElementById('com-txt-'+tareaId)?.value?.trim();
-  if(!txt){ toast('Escribe algo primero'); return; }
-  const data=load();
-  const t=data._andrea?.tareas?.find(t=>t.id===tareaId);
-  if(!t) return;
-  if(!t.comentarios) t.comentarios=[];
-  const n=new Date();
-  t.comentarios.push({
-    texto:txt,
-    fecha:n.toLocaleDateString('es-ES',{day:'numeric',month:'short'}),
-    hora:n.toTimeString().slice(0,5)
+function andTab(tab){
+  ['tareas','diario','informe'].forEach(t=>{
+    const el=document.getElementById('and-'+t);if(el)el.style.display=t===tab?'block':'none';
+    const btn=document.getElementById('atab-'+t);if(btn)btn.classList.toggle('on',t===tab);
   });
-  save(data);
-  document.getElementById('com-txt-'+tareaId).value='';
-  renderTareasAndrea();
-  toast('✓ Nota guardada 💜');
+  if(tab==='diario')renderAndreaDiario();
+  if(tab==='tareas')renderTareasAndrea();
 }
 
-function adjuntarFotoTarea(tareaId, inp){
-  const file=inp.files[0]; if(!file) return;
-  const r=new FileReader();
-  r.onload=e=>{
-    const data=load();
-    const t=data._andrea?.tareas?.find(t=>t.id===tareaId);
-    if(!t) return;
-    if(!t.comentarios) t.comentarios=[];
-    const n=new Date();
-    t.comentarios.push({
-      imagen: e.target.result,
-      fecha:n.toLocaleDateString('es-ES',{day:'numeric',month:'short'}),
-      hora:n.toTimeString().slice(0,5),
-      tipo:'foto'
-    });
-    save(data); renderTareasAndrea(); toast('✓ Foto adjuntada');
-  };
-  r.readAsDataURL(file);
-  inp.value='';
-}
-
-function eliminarTarea(id){
-  if(!confirm('¿Eliminar esta tarea y todas sus notas?')) return;
-  const data=load();
-  if(data._andrea?.tareas){
-    data._andrea.tareas=data._andrea.tareas.filter(t=>t.id!==id);
-    save(data); andTareaAbierta=null; renderTareasAndrea();
-    toast('Tarea eliminada');
-  }
-}
-
-// GRABACIÓN DE VOZ
-let andAudioBlob = null;
-let andAudioTareaId = null;
-
-async function toggleGrabacion(tareaId){
-  const btn=document.getElementById('voz-btn-'+tareaId);
-  const lbl=document.getElementById('voz-lbl-'+tareaId);
-  if(!andGrabando){
-    try{
-      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-      andMediaRecorder=new MediaRecorder(stream);
-      andAudioChunks=[];
-      andAudioTareaId=tareaId;
-      andMediaRecorder.ondataavailable=e=>andAudioChunks.push(e.data);
-      andMediaRecorder.onstop=()=>{
-        andAudioBlob=new Blob(andAudioChunks,{type:'audio/webm'});
-        const url=URL.createObjectURL(andAudioBlob);
-        const audio=document.getElementById('voz-audio-'+tareaId);
-        if(audio){ audio.src=url; document.getElementById('voz-preview-'+tareaId).style.display='block'; }
-        stream.getTracks().forEach(t=>t.stop());
-      };
-      andMediaRecorder.start();
-      andGrabando=true;
-      btn.classList.add('grabando');
-      lbl.textContent='⏹ Parar grabación';
-    }catch(e){ toast('⚠️ Activa el micrófono en el navegador'); }
-  } else {
-    andMediaRecorder?.stop();
-    andGrabando=false;
-    btn.classList.remove('grabando');
-    lbl.textContent='🎙️ Grabar nota de voz';
-  }
-}
-
-function guardarAudio(tareaId){
-  if(!andAudioBlob){ toast('No hay audio grabado'); return; }
-  const r=new FileReader();
-  r.onload=e=>{
-    const data=load();
-    const t=data._andrea?.tareas?.find(t=>t.id===tareaId);
-    if(!t) return;
-    if(!t.comentarios) t.comentarios=[];
-    const n=new Date();
-    t.comentarios.push({
-      audio: e.target.result,
-      fecha:n.toLocaleDateString('es-ES',{day:'numeric',month:'short'}),
-      hora:n.toTimeString().slice(0,5),
-      tipo:'voz 🎙️'
-    });
-    save(data); andAudioBlob=null;
-    document.getElementById('voz-preview-'+tareaId).style.display='none';
-    renderTareasAndrea(); toast('✓ Audio guardado 🎙️');
-  };
-  r.readAsDataURL(andAudioBlob);
-}
-
-function descartarAudio(tareaId){
-  andAudioBlob=null;
-  document.getElementById('voz-preview-'+tareaId).style.display='none';
-}
-
-// INFORME PARA ANDREA
-function selAndInf(p){
-  andInfPeriodo=p;
-  ['sem','mes','todo'].forEach(x=>document.getElementById('ainf-'+x)?.classList.toggle('on',x===p));
-}
-
-function generarInformeAndrea(){
-  const data=load(); const n=new Date();
-  let dias=[];
-  if(andInfPeriodo==='sem'){
-    for(let i=6;i>=0;i--){const d=new Date(n);d.setDate(n.getDate()-i);dias.push(key(d));}
-  } else if(andInfPeriodo==='mes'){
-    for(let i=0;i<n.getDate();i++){const d=new Date(n);d.setDate(n.getDate()-i);dias.push(key(d));}
-  } else {
-    dias=Object.keys(data).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)).sort();
-  }
-
-  const sep = '='.repeat(40);
-  const fechaStr = n.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  let lineas = ['INFORME PARA ANDREA', 'Generado el ' + fechaStr, sep, ''];
-
-  if(document.getElementById('inf-tareas')?.checked){
-    const tareas=data._andrea?.tareas||[];
-    if(tareas.length){
-      lineas.push('TAREAS DE TERAPIA:');
-      tareas.forEach(t=>{
-        lineas.push('');
-        lineas.push('• ' + t.titulo + ' ' + (t.completada?'[COMPLETADA ✓]':'[PENDIENTE]'));
-        if(t.tipo) lineas.push('  Tipo: ' + t.tipo);
-        if(t.comentarios?.length){
-          t.comentarios.filter(c=>c.texto).forEach(c=>{
-            lineas.push('  [' + c.fecha + ' ' + c.hora + ']: ' + c.texto);
-          });
-        }
-      });
-      lineas.push('');
-    }
-  }
-
-  if(document.getElementById('inf-emo')?.checked){
-    lineas.push('ESTADO EMOCIONAL:');
-    const emj={1:'Mal',2:'Regular',3:'Neutro',4:'Bien',5:'Genial'};
-    const EMO_N={triste:'Triste',ansiosa:'Ansiosa',enfadada:'Enfadada',alegre:'Alegre',tranquila:'Tranquila',cansada:'Cansada',frustrada:'Frustrada',neutral:'Neutral'};
-    dias.forEach(k=>{
-      const e=data[k]; if(!e) return;
-      const[y,m,d]=k.split('-');
-      const fecha = parseInt(d)+'/'+parseInt(m);
-      const bits=[];
-      if(e.humor) bits.push('humor: ' + emj[e.humor]);
-      if(e.emos?.length) bits.push(e.emos.map(em=>em.hora+' '+( EMO_N[em.emo]||em.emo)+(em.porque?' ('+em.porque+')':'')).join(', '));
-      if(bits.length) lineas.push('  ' + fecha + ': ' + bits.join(' | '));
-    });
-    lineas.push('');
-  }
-
-  if(document.getElementById('inf-diario')?.checked){
-    lineas.push('REFLEXIONES Y DIARIO:');
-    dias.forEach(k=>{
-      const e=data[k]; if(!e) return;
-      const[y,m,d]=k.split('-');
-      if(e.andrea) lineas.push('  ' + parseInt(d)+'/'+parseInt(m) + ': ' + e.andrea);
-      else if(e.diario) lineas.push('  ' + parseInt(d)+'/'+parseInt(m) + ' (diario): ' + e.diario.slice(0,200));
-    });
-    lineas.push('');
-  }
-
-  if(document.getElementById('inf-wc')?.checked){
-    lineas.push('REGISTRO WC (ansiedad/motivos):');
-    dias.forEach(k=>{
-      const e=data[k]; if(!e?.wc?.length) return;
-      const[y,m,d]=k.split('-');
-      const ansiedadWC=e.wc.filter(w=>w.motivo==='ansiedad'||w.motivo==='forzar'||w.motivo==='prevision');
-      if(ansiedadWC.length) lineas.push('  ' + parseInt(d)+'/'+parseInt(m) + ': ' + ansiedadWC.length + ' veces por ansiedad/previsión/forzar');
-    });
-    lineas.push('');
-  }
-
-  if(document.getElementById('inf-habitos')?.checked){
-    lineas.push('HÁBITOS:');
-    dias.forEach(k=>{
-      const e=data[k]; if(!e?.reg) return;
-      const r=e.reg; const[y,m,d]=k.split('-');
-      const bits=[];
-      if(r.sueno) bits.push('sueño ' + r.sueno + 'h');
-      if(r.yn_past) bits.push('pastillas ' + (r.yn_past==='si'?'✓':'✗'));
-      if(r.yn_ej==='si'||r.chips?.length) bits.push('ejercicio ' + (r.chips?.join(',')||''));
-      if(r.agua) bits.push('agua ' + r.agua + 'v');
-      if(bits.length) lineas.push('  ' + parseInt(d)+'/'+parseInt(m) + ': ' + bits.join(' | '));
-    });
-    lineas.push('');
-  }
-
-  if(document.getElementById('inf-social')?.checked){
-    lineas.push('SOCIALIZACIÓN:');
-    dias.forEach(k=>{
-      const e=data[k]; if(!e?.social?.conexiones?.length) return;
-      const[y,m,d]=k.split('-');
-      lineas.push('  ' + parseInt(d)+'/'+parseInt(m) + ': ' + e.social.conexiones.join(', '));
-      if(e.social.n_marco) lineas.push('    Marco: ' + e.social.n_marco);
-    });
-    lineas.push('');
-  }
-
-  const resumenTexto = lineas.join('\n');
-
-  document.getElementById('and-inf-resultado').style.display='block';
-  const textoEl=document.getElementById('and-inf-texto');
-  textoEl.textContent='Generando con IA…';
-
-  fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-6', max_tokens:1200,
-      system:'Eres asistente de Rebeca que prepara un resumen estructurado para su psicóloga Andrea. Rebeca es una mujer española, vigilante de seguridad con turnos de 12h, estudia Derecho, tiene una perra Furia y pareja Marco. Redacta el informe en primera persona (como si lo escribiera Rebeca), en español, de forma clara, honesta y terapéutica. Incluye: resumen emocional, avances en las tareas, patrones que observas, y preguntas o temas que podría tratar con Andrea.',
-      messages:[{role:'user',content:'Transforma estos datos en un informe terapéutico para llevar a mi próxima sesión con Andrea:\n\n'+resumenTexto}]
-    })
-  }).then(r=>r.json()).then(d=>{
-    const txt=d.content?.[0]?.text||resumenTexto;
-    textoEl.textContent=txt;
-    textoEl.dataset.raw=txt;
-  }).catch(()=>{ textoEl.textContent=resumenTexto; textoEl.dataset.raw=resumenTexto; });
-}
-
-function copiarInforme(){
-  const txt=document.getElementById('and-inf-texto')?.dataset?.raw||document.getElementById('and-inf-texto')?.textContent;
-  if(!txt) return;
-  navigator.clipboard?.writeText(txt).then(()=>toast('✓ Copiado al portapapeles')).catch(()=>toast('Selecciona el texto manualmente'));
-}
-
-function compartirInforme(){
-  const txt=document.getElementById('and-inf-texto')?.dataset?.raw||document.getElementById('and-inf-texto')?.textContent;
-  if(!txt) return;
-  const email = document.getElementById('andrea-email')?.value;
-  if(email){
-    const asunto = encodeURIComponent('Mi informe de seguimiento - ' + new Date().toLocaleDateString('es-ES'));
-    const cuerpo = encodeURIComponent(txt);
-    window.open('mailto:'+email+'?subject='+asunto+'&body='+cuerpo);
-  } else if(navigator.share){
-    navigator.share({title:'Informe para Andrea',text:txt});
-  } else {
-    copiarInforme();
-  }
-}
-
-function imprimirInforme(){
-  const txt=document.getElementById('and-inf-texto')?.dataset?.raw||document.getElementById('and-inf-texto')?.textContent;
-  if(!txt) return;
-  const w=window.open('','_blank');
-  w.document.write(`<html><head><title>Informe para Andrea</title>
-    <style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;line-height:1.8;color:#222;font-size:14px;}
-    h1{color:#7c3aed;border-bottom:2px solid #7c3aed;padding-bottom:8px;}
-    pre{white-space:pre-wrap;font-family:inherit;}</style></head>
-    <body><h1>Informe para Andrea 💜</h1><pre>${txt}</pre></body></html>`);
-  w.document.close(); w.print();
-}
-
-// ══ FOTO GRID ══
-function renderFotoGrid(){
-  const grid = document.getElementById('foto-grid');
-  if(!grid) return;
-  grid.innerHTML = fotos.map((s,i)=>`
-    <div style="position:relative;aspect-ratio:1;border-radius:7px;overflow:hidden;background:#dde3ea;">
-      <img src="${s}" style="width:100%;height:100%;object-fit:cover;display:block;">
-      <button onclick="fotos.splice(${i},1);renderFotoGrid()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
-    </div>`).join('');
-}
-
-// ══ MÚSICA ESPIRITUAL ══
-// ══ MÚSICA — Web Audio API (no necesita internet) ══
-const TRACKS = [
-  {name:'🎵 Frecuencia 432Hz · Relajación', freq:432, type:'sine', mod:0.5},
-  {name:'🎵 Frecuencia 528Hz · Amor', freq:528, type:'sine', mod:0.3},
-  {name:'🎵 Cuencos tibetanos · 396Hz', freq:396, type:'sine', mod:0.8},
-  {name:'🎵 Om · 136Hz · Tierra', freq:136, type:'sine', mod:0.6},
-  {name:'🎵 Frecuencia 741Hz · Intuición', freq:741, type:'sine', mod:0.4},
-  {name:'🎵 Lluvia binaural · Delta', freq:2, type:'sine', mod:1},
-];
-let trackIdx = 0;
-let musicPlaying = false;
-let audioCtx = null;
-let audioNodes = [];
-let gainNode = null;
-
-function initAudio(){
-  if(audioCtx) return;
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  gainNode = audioCtx.createGain();
-  gainNode.gain.value = 0.3;
-  gainNode.connect(audioCtx.destination);
-}
-
-function stopAudioNodes(){
-  audioNodes.forEach(n=>{ try{ n.stop(); }catch(e){} });
-  audioNodes = [];
-}
-
-function playTrack(t){
-  stopAudioNodes();
-  initAudio();
-  if(audioCtx.state === 'suspended') audioCtx.resume();
-  
-  // Oscilador principal
-  const osc = audioCtx.createOscillator();
-  osc.type = t.type;
-  osc.frequency.value = t.freq;
-  
-  // LFO para modulación suave (efecto cuenco)
-  const lfo = audioCtx.createOscillator();
-  lfo.frequency.value = t.mod;
-  const lfoGain = audioCtx.createGain();
-  lfoGain.gain.value = t.freq * 0.005;
-  lfo.connect(lfoGain);
-  lfoGain.connect(osc.frequency);
-  
-  // Reverb simple con delay
-  const delay = audioCtx.createDelay(0.5);
-  delay.delayTime.value = 0.3;
-  const feedback = audioCtx.createGain();
-  feedback.gain.value = 0.4;
-  delay.connect(feedback);
-  feedback.connect(delay);
-  
-  osc.connect(delay);
-  delay.connect(gainNode);
-  osc.connect(gainNode);
-  
-  // Segundo armónico para riqueza
-  const osc2 = audioCtx.createOscillator();
-  osc2.type = 'sine';
-  osc2.frequency.value = t.freq * 2;
-  const g2 = audioCtx.createGain();
-  g2.gain.value = 0.15;
-  osc2.connect(g2);
-  g2.connect(gainNode);
-  
-  lfo.start();
-  osc.start();
-  osc2.start();
-  audioNodes = [osc, osc2, lfo];
-}
-
-function toggleMusicBar(){
-  const bar = document.getElementById('music-bar');
-  bar.classList.toggle('hidden');
-  updateMusicTitle();
-}
-
-function updateMusicTitle(){
-  const t = document.getElementById('music-title');
-  if(t) t.textContent = TRACKS[trackIdx].name;
-}
-
-function loadTrack(i){
-  trackIdx = ((i % TRACKS.length) + TRACKS.length) % TRACKS.length;
-  updateMusicTitle();
-  if(musicPlaying) playTrack(TRACKS[trackIdx]);
-}
-
-function togglePlay(){
-  const btn = document.getElementById('music-play-btn');
-  if(musicPlaying){
-    stopAudioNodes();
-    if(audioCtx) audioCtx.suspend();
-    btn.textContent='▶️';
-    musicPlaying = false;
-  } else {
-    playTrack(TRACKS[trackIdx]);
-    btn.textContent='⏸';
-    musicPlaying = true;
-    toast('🎵 '+TRACKS[trackIdx].name);
-  }
-}
-
-function prevTrack(){ loadTrack(trackIdx-1); }
-function nextTrack(){ loadTrack(trackIdx+1); }
-function setVol(v){ if(gainNode) gainNode.gain.value = parseFloat(v) * 0.5; }
-
-// ══ VOZ INLINE — para cualquier textarea ══
-let vozGrabando = false;
-let vozRecorder = null;
-let vozChunks = [];
-let vozTargetId = null;
-let vozStream = null;
-
-async function iniciarVozPara(textareaId){
-  if(vozGrabando && vozTargetId === textareaId){
-    // Parar
-    vozRecorder?.stop();
-    return;
-  }
-  if(vozGrabando){ vozRecorder?.stop(); }
-  vozTargetId = textareaId;
-  try{
-    vozStream = await navigator.mediaDevices.getUserMedia({audio:true});
-    vozRecorder = new MediaRecorder(vozStream);
-    vozChunks = [];
-    vozRecorder.ondataavailable = e => vozChunks.push(e.data);
-    vozRecorder.onstop = async () => {
-      vozStream.getTracks().forEach(t=>t.stop());
-      vozGrabando = false;
-      updateVozBtns();
-      const blob = new Blob(vozChunks, {type:'audio/webm'});
-      // Transcribir con Whisper-compatible via Claude
-      const reader = new FileReader();
-      reader.onload = async e => {
-        const b64 = e.target.result.split(',')[1];
-        const el = document.getElementById(textareaId);
-        if(el) el.value += (el.value ? '\n' : '') + '[Audio grabado]';
-        try{
-          const resp = await fetch('https://api.anthropic.com/v1/messages',{
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({
-              model:'claude-sonnet-4-6', max_tokens:500,
-              system:'Transcribe exactamente lo que se dice en este audio. Solo devuelve el texto transcrito, sin explicaciones.',
-              messages:[{role:'user',content:[
-                {type:'text',text:'Transcribe este audio:'},
-              ]}]
-            })
-          });
-          // Como no podemos enviar audio directamente, insertar placeholder
-          if(el){ 
-            el.value = el.value.replace('[Audio grabado]', '[Audio grabado — escríbelo aquí]');
-            toast('🎙️ Audio guardado — escribe lo que has dicho');
-          }
-        }catch(e){ 
-          if(el) el.value = el.value.replace('[Audio grabado]',''); 
-        }
-      };
-      reader.readAsDataURL(blob);
-    };
-    vozRecorder.start();
-    vozGrabando = true;
-    updateVozBtns();
-    toast('🔴 Grabando... toca el micrófono de nuevo para parar');
-  }catch(e){ toast('⚠️ Activa el micrófono en Ajustes del navegador'); }
-}
-
-function updateVozBtns(){
-  document.querySelectorAll('.voz-inline-btn').forEach(btn=>{
-    const tid = btn.dataset.target;
-    if(tid === vozTargetId && vozGrabando){
-      btn.classList.add('rec'); btn.innerHTML='🔴 Parar';
-    } else {
-      btn.classList.remove('rec'); btn.innerHTML='🎙️ Voz';
-    }
-  });
-}
-
-// Insertar botones de voz junto a cada textarea al cargar
-function insertarBotonesVoz(){
-  document.querySelectorAll('textarea').forEach(ta=>{
-    if(!ta.id || ta.parentNode.querySelector('.voz-inline')) return;
-    const div = document.createElement('div');
-    div.className = 'voz-inline';
-    div.innerHTML = `<button class="voz-inline-btn" data-target="${ta.id}" onclick="iniciarVozPara('${ta.id}')">🎙️ Voz</button>`;
-    ta.parentNode.insertBefore(div, ta.nextSibling);
-  });
-}
-
-// ══ PDF INFORME SELECCIONABLE ══
-function generarPDFAndrea(){
-  const data = load(); const n = new Date();
-  const sel = {
-    tareas: document.getElementById('pdf-tareas')?.checked,
-    emo: document.getElementById('pdf-emo')?.checked,
-    diario: document.getElementById('pdf-diario')?.checked,
-    wc: document.getElementById('pdf-wc')?.checked,
-    habitos: document.getElementById('pdf-habitos')?.checked,
-  };
-
-  // Recoger últimos 7 días
-  const dias = [];
-  for(let i=6;i>=0;i--){const d=new Date(n);d.setDate(n.getDate()-i);dias.push(key(d));}
-
-  let contenido = '';
-
-  if(sel.tareas){
-    const tareas = data._andrea?.tareas||[];
-    if(tareas.length){
-      contenido += '<h2>📋 Tareas de terapia</h2>';
-      tareas.forEach(t=>{
-        contenido += `<div style="margin-bottom:12px;padding:10px;border-left:3px solid #7c3aed;background:#f8f4ff;">
-          <strong>${t.titulo}</strong> <span style="color:${t.completada?'green':'orange'}">${t.completada?'✓ Completada':'Pendiente'}</span>
-          ${t.tipo?`<span style="font-size:.85em;color:#666;margin-left:8px;">(${t.tipo})</span>`:''}
-          ${t.comentarios?.filter(c=>c.texto).map(c=>`<p style="margin-top:6px;font-size:.9em;color:#444;">${c.fecha} ${c.hora}: ${c.texto}</p>`).join('')||''}
-        </div>`;
-      });
-    }
-  }
-
-  if(sel.emo){
-    contenido += '<h2>💭 Estado emocional</h2>';
-    const emj={1:'Mal',2:'Regular',3:'Neutro',4:'Bien',5:'Genial'};
-    const EMON={triste:'Triste',ansiosa:'Ansiosa',enfadada:'Enfadada',alegre:'Alegre',tranquila:'Tranquila',cansada:'Cansada',frustrada:'Frustrada',neutral:'Neutral'};
-    dias.forEach(k=>{
-      const e=data[k];if(!e)return;
-      const[y,m,d]=k.split('-');
-      let fila = `<strong>${parseInt(d)}/${parseInt(m)}:</strong> `;
-      if(e.humor) fila += `Humor: ${emj[e.humor]}. `;
-      if(e.emos?.length) fila += e.emos.map(em=>`${em.hora} ${EMON[em.emo]||em.emo}${em.porque?' ('+em.porque+')':''}`).join(', ');
-      if(e.humor||e.emos?.length) contenido += `<p>${fila}</p>`;
-    });
-  }
-
-  if(sel.diario){
-    contenido += '<h2>📝 Reflexiones</h2>';
-    dias.forEach(k=>{
-      const e=data[k];if(!e?.andrea&&!e?.diario)return;
-      const[y,m,d]=k.split('-');
-      contenido += `<div style="margin-bottom:8px;"><strong>${parseInt(d)}/${parseInt(m)}:</strong><br>${e.andrea||e.diario}</div>`;
-    });
-  }
-
-  if(sel.wc){
-    contenido += '<h2>🚽 Registro WC</h2>';
-    dias.forEach(k=>{
-      const e=data[k];if(!e?.wc?.length)return;
-      const[y,m,d]=k.split('-');
-      contenido += `<p><strong>${parseInt(d)}/${parseInt(m)}:</strong> ${e.wc.length} visitas. `;
-      const ansiedad = e.wc.filter(w=>w.motivo==='ansiedad'||w.motivo==='prevision'||w.motivo==='forzar').length;
-      if(ansiedad) contenido += `<span style="color:red;">${ansiedad} por ansiedad/previsión</span>.`;
-      const notas = e.wc.filter(w=>w.antes||w.durante).map(w=>`${w.hora}: ${w.antes||''} ${w.durante||''}`).join(' | ');
-      if(notas) contenido += ` <em>${notas}</em>`;
-      contenido += '</p>';
-    });
-  }
-
-  if(sel.habitos){
-    contenido += '<h2>✨ Hábitos</h2>';
-    dias.forEach(k=>{
-      const e=data[k];if(!e?.reg)return;
-      const r=e.reg;const[y,m,d]=k.split('-');
-      const bits=[];
-      if(r.sueno) bits.push(`Sueño: ${r.sueno}h`);
-      if(r.agua) bits.push(`Agua: ${r.agua} vasos`);
-      if(r.pasos) bits.push(`Pasos: ${r.pasos}`);
-      if(r.yn_past) bits.push(`Pastillas: ${r.yn_past==='si'?'✓':'✗'}`);
-      if(r.chips?.length) bits.push(`Ejercicio: ${r.chips.join(', ')}`);
-      if(r.st_dia) bits.push(`Día: ${r.st_dia}/5⭐`);
-      if(bits.length) contenido += `<p><strong>${parseInt(d)}/${parseInt(m)}:</strong> ${bits.join(' · ')}</p>`;
-    });
-  }
-
-  if(!contenido){ toast('Selecciona al menos una sección'); return; }
-
-  const fechaStr = n.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const html_pdf = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-    <title>Informe para Andrea</title>
-    <style>
-      body{font-family:Georgia,serif;max-width:700px;margin:40px auto;color:#222;line-height:1.7;font-size:14px;}
-      h1{color:#7c3aed;border-bottom:3px solid #7c3aed;padding-bottom:8px;margin-bottom:6px;}
-      h2{color:#5b21b6;margin-top:24px;margin-bottom:10px;font-size:1.1em;}
-      .meta{color:#888;font-size:.85em;margin-bottom:30px;}
-      p{margin-bottom:6px;}
-      @media print{body{margin:20px;}}
-    </style></head><body>
-    <h1>Informe para Andrea 💜</h1>
-    <div class="meta">Preparado por Rebeca · ${fechaStr}</div>
-    ${contenido}
-    </body></html>`;
-
-  const w = window.open('','_blank');
-  if(w){
-    w.document.write(html_pdf);
-    w.document.close();
-    setTimeout(()=>w.print(), 800);
-  } else {
-    // Fallback: descargar
-    const blob = new Blob([html_pdf], {type:'text/html'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href=url; a.download=`informe-andrea-${n.toISOString().slice(0,10)}.html`;
-    document.body.appendChild(a); a.click();
-    document.body.removeChild(a); URL.revokeObjectURL(url);
-    toast('📄 Informe descargado');
-  }
-}
-
-// ══ INIT ══
-renderHoy();renderCal();renderIA();renderEmoHoy();
-setTimeout(insertarBotonesVoz, 500);
+function selAndInf(p){andInfPeriodo=p;['sem','mes','todo'].forEach(x=>document.getElementById('ainf-'+x)?.classList.toggle('on',x===p));}
 </script>
 </body>
 </html>
