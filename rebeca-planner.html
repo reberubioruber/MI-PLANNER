@@ -839,7 +839,7 @@ function cambiarFechaSoc(v){fechaActiva.soc=v;const b=document.getElementById('s
 function volverHoy(tab){const t=today();fechaActiva[tab]=t;const inp=document.getElementById(tab+'-fecha-pick');if(inp)inp.value=t;const b=document.getElementById(tab+'-banner');if(b)b.classList.remove('show');if(tab==='hoy')renderHoyConFecha(t);else if(tab==='reg')renderRegConFecha(t);else if(tab==='wc')renderWCConFecha(t);else if(tab==='soc')renderSocConFecha(t);}
 
 // ══ TURNOS ══
-const TURNOS={
+const TURNOS_BASE={
   '2026-06-01':'dia','2026-06-02':'dia','2026-06-03':'dia',
   '2026-06-04':'libre','2026-06-05':'libre','2026-06-06':'libre','2026-06-07':'libre',
   '2026-06-08':'dia','2026-06-09':'dia','2026-06-10':'dia','2026-06-11':'dia',
@@ -871,6 +871,26 @@ const TURNOS={
   '2026-09-25':'noche','2026-09-26':'noche','2026-09-27':'noche','2026-09-28':'noche','2026-09-29':'noche',
   '2026-09-30':'libre'
 };
+
+// ══ TURNOS EDITABLES ══
+function getTurnos(){
+  try{
+    const custom=JSON.parse(localStorage.getItem('rebeca_turnos')||'{}');
+    return Object.assign({},TURNOS_BASE,custom);
+  }catch{return TURNOS_BASE;}
+}
+function setTurnoCustom(fecha,tipo){
+  try{
+    const custom=JSON.parse(localStorage.getItem('rebeca_turnos')||'{}');
+    if(tipo===TURNOS_BASE[fecha]){
+      delete custom[fecha]; // si es igual al base, borrar override
+    } else {
+      custom[fecha]=tipo;
+    }
+    localStorage.setItem('rebeca_turnos',JSON.stringify(custom));
+  }catch(e){}
+}
+
 const EXAMENES=[
   {f:'2026-09-02',a:'Derecho Civil III · Derechos Reales e Hipotecario',h:'09:00',l:'Calatayud'},
   {f:'2026-09-03',a:'Derecho Procesal II + Derecho Internacional Público',h:'09:00',l:'Calatayud'},
@@ -1313,7 +1333,7 @@ function aplicarDato(campo,valor,el){
 function renderHoyConFecha(k){
   const parts = k.split('-');
   const n = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
-  const t=TURNOS[k]||'libre';
+  const TURNOS=getTurnos();const TURNOS_HOY=getTurnos();const t=TURNOS_HOY[k]||'libre';
   document.getElementById('f-hoy').textContent=`${n.getDate()} de ${MESES[n.getMonth()]}`;
   document.getElementById('f-dia').textContent=DIAS[n.getDay()].toUpperCase()+' · '+n.getFullYear();
   const picker = document.getElementById('hoy-fecha-pick');
@@ -1390,7 +1410,7 @@ function renderCal(){
   for(let i=0;i<sd;i++){const el=document.createElement('div');el.className='cal-day emp';g.appendChild(el);}
   const dim=new Date(cY,cM+1,0).getDate();const data=load();const todK=today();
   for(let d=1;d<=dim;d++){
-    const k=`${cY}-${pz(cM+1)}-${pz(d)}`;const t=TURNOS[k]||'libre';const ex=EXAMENES.find(e=>e.f===k);const ent=data[k];
+    const k=`${cY}-${pz(cM+1)}-${pz(d)}`;const TURNOS=getTurnos();const t=getTurnos()[k]||'libre';const ex=EXAMENES.find(e=>e.f===k);const ent=data[k];
     const el=document.createElement('div');el.className='cal-day';
     if(ex)el.classList.add('exc');else if(t==='dia')el.classList.add('dc');else if(t==='noche')el.classList.add('nc');else el.classList.add('lc');
     if(k===todK)el.classList.add('hoy');
@@ -1457,8 +1477,33 @@ function showDet(k,d,t,ex,ent){
     }
     html+=`<button onclick="irADia('${k}')" style="width:100%;margin-top:10px;padding:8px;background:var(--teal);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;">✏️ Editar este día</button>`;
   }
+  // Añadir selector de turno editable
+  const turnoActual = getTurnos()[k] || 'libre';
+  const turnoOpts = ['dia','noche','fiesta','libre'];
+  const turnoEmoji = {dia:'☀️',noche:'🌙',fiesta:'🎉',libre:'🌿'};
+  const turnoLabel = {dia:'Turno día',noche:'Turno noche',fiesta:'Festivo',libre:'Libre'};
+  html += `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line);">
+    <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:8px;">✏️ Editar turno de este día</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      ${turnoOpts.map(t=>`<button onclick="cambiarTurno('${k}','${t}')" style="padding:7px 12px;border-radius:8px;border:2px solid ${turnoActual===t?'var(--teal)':'var(--line)'};background:${turnoActual===t?'#d1fae5':'#fff'};font-family:'Inter',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;">${turnoEmoji[t]} ${turnoLabel[t]}</button>`).join('')}
+    </div>
+  </div>`;
+
   document.getElementById('det-body').innerHTML=html;
   det.classList.add('show');det.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function cambiarTurno(fecha,tipo){
+  setTurnoCustom(fecha,tipo);
+  renderCal();
+  // Reabrir el detalle actualizado
+  const parts=fecha.split('-');
+  const d=parseInt(parts[2]);
+  const t=getTurnos()[fecha]||'libre';
+  const ex=EXAMENES.find(e=>e.f===fecha);
+  const ent=(load())[fecha];
+  showDet(fecha,d,t,ex,ent);
+  toast('✓ Turno actualizado');
 }
 
 function irADia(k){
